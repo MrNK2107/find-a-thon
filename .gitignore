@@ -1,0 +1,53 @@
+# ------------------------------------
+# Global Ignore Rules
+# ------------------------------------
+# OS-generated files
+.DS_Store
+.vscode/
+
+# Environment Variables
+# These files contain secrets and should NEVER be committed
+.env
+.env.local
+.env.*.local
+
+# ------------------------------------
+# Backend (Python) Specific
+# ------------------------------------
+# Virtual environments
+venv/
+*/venv/
+.pytest_cache/
+.coverage
+
+# Compiled Python files
+__pycache__/
+*.pyc
+*.pyo
+
+# Logs and databases
+*.log
+*.sqlite3
+
+# ------------------------------------
+# Frontend (Next.js) Specific
+# ------------------------------------
+# Dependencies
+frontend/node_modules/
+
+# Next.js build artifacts
+frontend/.next/
+frontend/out/
+
+# Vercel deployment metadata
+# This directory is created by the Vercel CLI
+frontend/.vercel/
+
+# NPM
+frontend/npm-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+
+# Lockfiles - keep package.json, but ignore lockfiles if using different package managers
+# If you only use npm, you might want to commit package-lock.json
+# frontend/package-lock.json
