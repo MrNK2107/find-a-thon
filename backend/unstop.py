@@ -5,10 +5,10 @@ from models import HackathonItem
 from utils import extract_reg_end_date_from_text, search_date_on_web
 
 
-class DevfolioScraper(GenericScraper):
-    platform_name = "Devfolio"
-    TARGET_URL = "https://devfolio.co/hackathons/open"
-    API_PATTERN = "api.devfolio.co"
+class UnstopScraper(GenericScraper):
+    platform_name = "Unstop"
+    TARGET_URL = "https://unstop.com/hackathons?oppstatus=open"
+    API_PATTERN = "unstop.com/api/public/opportunity/search-new"
 
     def scrape(self, page: Page, context: BrowserContext) -> list[HackathonItem]:
         items: list[HackathonItem] = []
@@ -25,7 +25,7 @@ class DevfolioScraper(GenericScraper):
             self.logger.warning("XHR interception returned no data, falling back to DOM")
             items = self._fallback_dom(page)
 
-        # Enrich items missing dates
+        # Enrich items missing dates by visiting their detail pages
         items = self._enrich_missing_dates(items, context)
 
         return items
@@ -33,54 +33,59 @@ class DevfolioScraper(GenericScraper):
     def _parse_api_responses(self) -> list[HackathonItem]:
         items = []
         for payload in self._captured_responses:
-            hackathons = []
-            if isinstance(payload, dict):
-                hackathons = payload.get("results", payload.get("hackathons", []))
-                if not hackathons and "data" in payload:
-                    hackathons = payload["data"] if isinstance(payload["data"], list) else []
+            opportunities = payload.get("data", {}).get("data", [])
+            if not opportunities and isinstance(payload.get("data"), list):
+                opportunities = payload["data"]
 
-            for h in hackathons:
-                if not isinstance(h, dict):
-                    continue
-                name = h.get("name", "") or h.get("title", "")
-                if not name:
+            for opp in opportunities:
+                title = opp.get("title", "").strip()
+                if not title:
                     continue
 
-                slug = h.get("slug", "")
-                link = f"https://devfolio.co/hackathons/{slug}" if slug else ""
-                if not link:
+                link = f"https://unstop.com/hackathon/{opp.get('public_url', '')}" if opp.get("public_url") else ""
+                if not link or link == "https://unstop.com/hackathon/":
                     continue
 
-                # Try multiple API fields for end date
-                end_date = (
-                    h.get("application_end_at")
-                    or h.get("applications_end_at")
-                    or h.get("reg_end_at")
-                    or h.get("ends_at")
-                    or h.get("hackathon_end")
-                    or ""
-                )
+                # Try multiple API fields for registration end date
+                end_date = None
+                regn_req = opp.get("regnRequirements")
+                if isinstance(regn_req, dict):
+                    end_date = regn_req.get("end_regn_dt")
+                if not end_date:
+                    end_date = opp.get("end_date")
+                if not end_date:
+                    end_date = opp.get("deadline")
+                if not end_date:
+                    # Check nested dates
+                    dates = opp.get("dates", {})
+                    if isinstance(dates, dict):
+                        end_date = dates.get("end_date") or dates.get("registration_end")
+
                 if end_date and "T" in str(end_date):
                     end_date = str(end_date).split("T")[0]
-                elif not end_date:
-                    end_date = None
 
-                location = h.get("location", "") or ""
-                is_offline = h.get("is_offline", False)
-                logo = h.get("logo", "") or h.get("cover_img", "") or ""
-                organizer = h.get("organisation_name", "") or ""
-                themes = ", ".join(h.get("themes", [])) if isinstance(h.get("themes"), list) else ""
+                org = ""
+                org_data = opp.get("organisation")
+                if isinstance(org_data, dict):
+                    org = org_data.get("name", "")
+
+                location = opp.get("city", "") or ""
+                is_offline = False
+                eligible = opp.get("oppstatus_eligible_for")
+                if isinstance(eligible, dict):
+                    is_offline = eligible.get("is_offline", False)
+
+                logo = opp.get("logoUrl2") or opp.get("logoUrl") or ""
 
                 items.append(HackathonItem(
-                    title=name,
-                    organizer=organizer,
-                    date=end_date if end_date else None,
+                    title=title,
+                    organizer=org,
+                    date=str(end_date) if end_date else None,
                     location=location,
                     link=link,
-                    source_platform="Devfolio",
+                    source_platform="Unstop",
                     is_offline=bool(is_offline),
                     image_url=logo,
-                    themes=themes,
                 ))
         return items
 
@@ -92,6 +97,7 @@ class DevfolioScraper(GenericScraper):
                 enriched.append(item)
                 continue
 
+            # Try visiting the detail page
             try:
                 detail = context.new_page()
                 detail.goto(item.link, wait_until="domcontentloaded", timeout=15000)
@@ -113,7 +119,6 @@ class DevfolioScraper(GenericScraper):
                         source_platform=item.source_platform,
                         is_offline=item.is_offline,
                         image_url=item.image_url,
-                        themes=item.themes,
                     ))
                 else:
                     self.logger.warning(f"No date found for: {item.title}")
@@ -128,20 +133,27 @@ class DevfolioScraper(GenericScraper):
 
     def _fallback_dom(self, page: Page) -> list[HackathonItem]:
         items = []
-        cards = page.query_selector_all("a[href*='/hackathons/']")
+        cards = page.query_selector_all("a[href*='/hackathon/']")
         seen = set()
         for card in cards:
             href = card.get_attribute("href") or ""
-            if not href or href in seen or "/open" in href:
+            if not href or href in seen:
                 continue
             seen.add(href)
-            link = href if href.startswith("http") else f"https://devfolio.co{href}"
-            title = card.inner_text().strip().split("\n")[0]
-            if not title or len(title) < 3:
+            link = href if href.startswith("http") else f"https://unstop.com{href}"
+            title = ""
+            for tag in ["h2", "h3", "h4"]:
+                el = card.query_selector(tag)
+                if el:
+                    title = el.inner_text().strip()
+                    break
+            if not title:
+                title = card.inner_text().strip()[:100]
+            if not title:
                 continue
             items.append(HackathonItem(
                 title=title,
                 link=link,
-                source_platform="Devfolio",
+                source_platform="Unstop",
             ))
         return items

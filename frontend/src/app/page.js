@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
-import HackathonCard from '@/components/HackathonCard';
+import Navbar from '@/components/Navbar';
+import HackathonList from '@/components/HackathonList';
 
 // Force dynamic rendering so we see new DB entries on refresh without rebuilding
 export const dynamic = 'force-dynamic';
@@ -15,11 +16,16 @@ export default async function Home() {
   if (error) {
     console.error("Error fetching hackathons:", error);
     return (
-      <div className="min-h-screen flex items-center justify-center bg-red-50">
-        <div className="text-center p-6 max-w-md bg-white rounded-lg shadow-lg">
-          <h2 className="text-2xl font-bold text-red-600 mb-2">Connection Error</h2>
-          <p className="text-gray-700">Failed to load hackathon data from Supabase.</p>
-          <code className="block mt-4 p-2 bg-gray-100 rounded text-xs text-red-800">
+      <div className="min-h-screen flex items-center justify-center bg-[#0f172a]">
+        <div className="text-center p-8 max-w-md bg-slate-800 rounded-2xl shadow-xl border border-red-900/50">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-red-900/20 mb-4">
+            <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold text-white mb-2">Connection Error</h2>
+          <p className="text-slate-400 mb-4">Failed to load hackathon data. Please try again later.</p>
+          <code className="block p-3 bg-slate-900/50 rounded-lg text-xs text-red-400 font-mono break-all border border-slate-700">
             {error.message}
           </code>
         </div>
@@ -29,29 +35,9 @@ export default async function Home() {
 
   // 3. Render Page
   return (
-    <main className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        <header className="mb-12 text-center">
-          <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl tracking-tight">
-            Upcoming Hackathons
-          </h1>
-          <p className="mt-4 text-lg text-gray-600">
-            Find your next challenge from our curated list.
-          </p>
-        </header>
-
-        {(!hackathons || hackathons.length === 0) ? (
-          <div className="text-center py-20">
-            <p className="text-gray-500 text-xl">No upcoming hackathons found right now.</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {hackathons.map((hackathon) => (
-              <HackathonCard key={hackathon.id} hackathon={hackathon} />
-            ))}
-          </div>
-        )}
-      </div>
+    <main className="min-h-screen bg-[#0f172a] text-slate-100 font-sans selection:bg-blue-500/30">
+      <Navbar />
+      <HackathonList initialHackathons={hackathons || []} />
     </main>
   );
 }

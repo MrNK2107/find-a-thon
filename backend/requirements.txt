@@ -1,0 +1,8 @@
+playwright
+playwright-stealth
+pydantic
+supabase
+python-dotenv
+dateparser
+beautifulsoup4
+duckduckgo-search
