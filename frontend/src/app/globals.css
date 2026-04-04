@@ -2,7 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  background-color: #0f172a; /* slate-900 */
-  color: #f8fafc; /* slate-50 */
+  background-color: theme('colors.background');
+  color: theme('colors.on-surface');
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
 }

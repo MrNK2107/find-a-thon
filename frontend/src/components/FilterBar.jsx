@@ -8,11 +8,11 @@ const FilterBar = ({ activeFilter, onFilterChange, showUrgency, onUrgencyChange 
         { id: 'MLH', label: 'MLH' },
         { id: 'Unstop', label: 'Unstop' },
         { id: 'Online', label: 'Online', icon: 'wifi' },
-        { id: 'In-Person', label: 'In-Person', icon: 'map-pin' },
+        { id: 'Offline', label: 'In-Person', icon: 'map-pin' },
     ];
 
     return (
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 py-6">
+        <div className="flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white/90 backdrop-blur-sm p-4 shadow-sm">
             <div className="flex flex-wrap items-center gap-2">
                 {filters.map((filter) => (
                     <button
@@ -21,8 +21,8 @@ const FilterBar = ({ activeFilter, onFilterChange, showUrgency, onUrgencyChange 
                         className={`
               relative px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border
               ${activeFilter === filter.id
-                                ? 'bg-blue-600 text-white border-blue-500 shadow-lg shadow-blue-500/25'
-                                : 'bg-slate-800 text-slate-400 border-slate-700 hover:bg-slate-700 hover:text-slate-200'
+                                ? 'bg-[#185FA5] text-white border-[#185FA5] shadow-lg shadow-blue-200'
+                                : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100 hover:text-slate-900'
                             }
             `}
                     >
@@ -45,13 +45,13 @@ const FilterBar = ({ activeFilter, onFilterChange, showUrgency, onUrgencyChange 
                 ))}
             </div>
 
-            <div className="flex items-center gap-3 bg-slate-800 p-1.5 rounded-full border border-slate-700">
-                <span className={`text-xs font-medium px-2 ${showUrgency ? 'text-orange-400' : 'text-slate-400'}`}>
-                    🔥 Urgency
+            <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 md:max-w-xs md:ml-auto">
+                <span className={`text-xs font-semibold px-2 ${showUrgency ? 'text-[#b45309]' : 'text-slate-500'}`}>
+                    Urgency
                 </span>
                 <button
                     onClick={() => onUrgencyChange(!showUrgency)}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-900 ${showUrgency ? 'bg-orange-500' : 'bg-slate-600'
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#185FA5]/30 focus:ring-offset-2 focus:ring-offset-white ${showUrgency ? 'bg-amber-500' : 'bg-slate-300'
                         }`}
                 >
                     <span

@@ -4,10 +4,9 @@ import React, { useState, useMemo } from 'react';
 import FilterBar from './FilterBar';
 import HackathonCard from './HackathonCard';
 
-const HackathonList = ({ initialHackathons }) => {
+const HackathonList = ({ initialHackathons, searchQuery = '', showBookmark = false }) => {
     const [activeFilter, setActiveFilter] = useState('all');
     const [showUrgency, setShowUrgency] = useState(false);
-    const [searchQuery, setSearchQuery] = useState('');
 
     const filteredHackathons = useMemo(() => {
         if (!initialHackathons) return [];
@@ -33,7 +32,12 @@ const HackathonList = ({ initialHackathons }) => {
                 const query = searchQuery.toLowerCase();
                 const titleMatch = hackathon.title?.toLowerCase().includes(query);
                 const descMatch = hackathon.description?.toLowerCase().includes(query);
-                const themesMatch = hackathon.themes?.toLowerCase().includes(query);
+                const themeValues = Array.isArray(hackathon.themes)
+                    ? hackathon.themes
+                    : typeof hackathon.themes === 'string'
+                        ? hackathon.themes.split(',')
+                        : [];
+                const themesMatch = themeValues.some((theme) => String(theme).toLowerCase().includes(query));
                 if (!titleMatch && !descMatch && !themesMatch) return false;
             }
 
@@ -59,13 +63,13 @@ const HackathonList = ({ initialHackathons }) => {
                         </div>
                         <h3 className="text-xl font-bold text-white mb-2">No hackathons found</h3>
                         <p className="max-w-sm">
-                            We couldn't find any events matching your filters. Try adjusting them.
+                            We couldn&apos;t find any events matching your filters. Try adjusting them.
                         </p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {filteredHackathons.map((hackathon) => (
-                            <HackathonCard key={hackathon.id} hackathon={hackathon} />
+                            <HackathonCard key={hackathon.id} hackathon={hackathon} showBookmark={showBookmark} />
                         ))}
                     </div>
                 )}
