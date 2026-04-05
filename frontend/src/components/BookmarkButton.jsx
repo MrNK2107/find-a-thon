@@ -1,79 +1,61 @@
 'use client';
-
 import { useEffect, useState } from 'react';
-import { Heart } from 'lucide-react';
+import { auth } from '@/lib/firebase';
 import { supabase } from '@/lib/supabaseClient';
 
 export default function BookmarkButton({ hackathonId }) {
   const [isSaved, setIsSaved] = useState(false);
-  const [userId, setUserId] = useState(null);
+  const [firebaseUser, setFirebaseUser] = useState(null);
 
   useEffect(() => {
-    let mounted = true;
+    const unsub = auth.onAuthStateChanged(u => setFirebaseUser(u));
+    return unsub;
+  }, []);
 
-    async function loadState() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+  useEffect(() => {
+    if (!firebaseUser || !hackathonId) return;
+    supabase
+      .from('saved_hackathons')
+      .select('id')
+      .eq('user_id', firebaseUser.uid)
+      .eq('hackathon_id', hackathonId)
+      .maybeSingle()
+      .then(({ data }) => setIsSaved(Boolean(data)));
+  }, [firebaseUser, hackathonId]);
 
-      if (!mounted) return;
-      setUserId(user?.id || null);
-
-      if (!user?.id || !hackathonId) return;
-      const { data } = await supabase
-        .from('saved_hackathons')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('hackathon_id', hackathonId)
-        .maybeSingle();
-      setIsSaved(Boolean(data));
-    }
-
-    loadState();
-    return () => {
-      mounted = false;
-    };
-  }, [hackathonId]);
-
-  async function toggleSaved(event) {
-    event.preventDefault();
-    event.stopPropagation();
-
-    if (!userId) {
-      window.location.href = '/auth';
-      return;
-    }
-
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-
-    const response = await fetch('/api/bookmarks', {
+  async function toggleSaved(e) {
+    e.preventDefault(); e.stopPropagation();
+    if (!firebaseUser) { window.location.href = '/auth'; return; }
+    const token = await firebaseUser.getIdToken();
+    const res = await fetch('/api/bookmarks', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${session?.access_token || ''}`,
+        'Authorization': `Bearer ${token}`,
       },
       body: JSON.stringify({ hackathonId }),
     });
-
-    if (!response.ok) {
-      return;
+    if (res.ok) {
+      const payload = await res.json();
+      setIsSaved(Boolean(payload.saved));
     }
-
-    const payload = await response.json();
-    setIsSaved(Boolean(payload.saved));
   }
 
+  // SVG bookmark icon — no Material Symbols dependency
   return (
     <button
       onClick={toggleSaved}
-      className={`rounded-full p-2 border backdrop-blur-md ${
-        isSaved ? 'bg-rose-500/90 border-rose-400 text-white' : 'bg-white/80 border-slate-200 text-slate-700'
-      }`}
       aria-label="Toggle bookmark"
+      className={`w-8 h-8 rounded-lg border flex items-center justify-center transition-colors ${
+        isSaved
+          ? 'bg-[#EEEDFE] border-[#AFA9EC] text-[#534AB7]'
+          : 'bg-white border-[#E2E3E1] text-[#9B9B98] hover:border-[#C2C6D2]'
+      }`}
     >
-      <Heart size={14} fill={isSaved ? 'currentColor' : 'none'} />
+      <svg width="14" height="14" viewBox="0 0 24 24" fill={isSaved ? 'currentColor' : 'none'}
+           stroke="currentColor" strokeWidth="2">
+        <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
+      </svg>
     </button>
   );
 }

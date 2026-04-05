@@ -1,12 +1,30 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { getAuth } from 'firebase-admin/auth';
+import { initializeApp, getApps, cert } from 'firebase-admin/app';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-const authClient = createClient(supabaseUrl, supabaseAnonKey);
 const adminClient = createClient(supabaseUrl, serviceRoleKey);
+
+// Initialize Firebase Admin once
+if (!getApps().length) {
+  try {
+    const privKey = process.env.FIREBASE_PRIVATE_KEY;
+    if (privKey && !privKey.includes('your_private_key')) {
+      initializeApp({
+        credential: cert({
+          projectId: process.env.FIREBASE_PROJECT_ID,
+          clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+          privateKey: privKey.replace(/\\n/g, '\n'),
+        }),
+      });
+    }
+  } catch (error) {
+    console.warn('Firebase admin skipped init:', error.message);
+  }
+}
 
 export async function POST(request) {
   try {
@@ -17,14 +35,8 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Missing authorization token' }, { status: 401 });
     }
 
-    const {
-      data: { user },
-      error: userError,
-    } = await authClient.auth.getUser(token);
-
-    if (userError || !user) {
-      return NextResponse.json({ error: 'Invalid user token' }, { status: 401 });
-    }
+    const decoded = await getAuth().verifyIdToken(token);
+    const uid = decoded.uid;
 
     const { hackathonId } = await request.json();
     if (!hackathonId) {
@@ -34,7 +46,7 @@ export async function POST(request) {
     const { data: existing } = await adminClient
       .from('saved_hackathons')
       .select('id')
-      .eq('user_id', user.id)
+      .eq('user_id', uid)
       .eq('hackathon_id', hackathonId)
       .maybeSingle();
 
@@ -43,12 +55,12 @@ export async function POST(request) {
         .from('saved_hackathons')
         .delete()
         .eq('id', existing.id)
-        .eq('user_id', user.id);
+        .eq('user_id', uid);
       return NextResponse.json({ saved: false });
     }
 
     await adminClient.from('saved_hackathons').insert({
-      user_id: user.id,
+      user_id: uid,
       hackathon_id: hackathonId,
     });
 

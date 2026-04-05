@@ -24,7 +24,7 @@ function SavedContent({ user, searchQuery, setSearchQuery, savedHackathons, setS
       const { data: savedRows } = await supabase
         .from('saved_hackathons')
         .select('hackathon_id')
-        .eq('user_id', user.id);
+        .eq('user_id', user.uid);
 
       const ids = (savedRows || []).map((row) => row.hackathon_id).filter(Boolean);
       if (!ids.length) {
@@ -40,7 +40,7 @@ function SavedContent({ user, searchQuery, setSearchQuery, savedHackathons, setS
     return () => {
       mounted = false;
     };
-  }, [user.id, setSavedHackathons]);
+  }, [user.uid, setSavedHackathons]);
 
   const heading = useMemo(() => `${savedHackathons.length} saved`, [savedHackathons.length]);
 

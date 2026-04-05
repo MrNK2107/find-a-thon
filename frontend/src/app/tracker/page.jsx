@@ -23,7 +23,7 @@ function TrackerContent({ user }) {
       const { data } = await supabase
         .from('hackathon_entries')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', user.uid)
         .order('started_at', { ascending: false, nullsFirst: false });
       if (mounted) setEntries(data || []);
     }
@@ -31,7 +31,7 @@ function TrackerContent({ user }) {
     return () => {
       mounted = false;
     };
-  }, [user.id]);
+  }, [user.uid]);
 
   return (
     <section className="space-y-4">
@@ -46,10 +46,10 @@ function TrackerContent({ user }) {
             eventName={entry.hackathon_title}
             date={entry.submitted_at ? new Date(entry.submitted_at).toLocaleDateString() : 'N/A'}
             teamSizeLabel={`Team of ${entry.team_size || 1}`}
-            status={entry.result ? entry.result.replace('_', '-') : 'in-progress'}
+            status={entry.result ? entry.result.replace('_', '-') : entry.status}
             tags={entry.tech_stack || []}
-            description={entry.description || ''}
-            repoUrl={entry.github_url}
+            description={entry.project_description || ''}
+            repoUrl={entry.repo_url}
             projectUrl={entry.demo_url}
           />
         ))}

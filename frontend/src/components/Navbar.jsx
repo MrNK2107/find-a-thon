@@ -24,6 +24,7 @@ const Navbar = ({ searchQuery = '', onSearchChange, hackathonCount = 0 }) => {
                     <input
                         type="text"
                         value={searchQuery}
+                        aria-label="Search hackathons"
                         onChange={(e) => onSearchChange?.(e.target.value)}
                         placeholder="Search hackathons..."
                         className="w-full bg-[var(--bg)] border-transparent rounded-lg py-1.5 pl-9 pr-3 text-[14px] text-[var(--text-primary)] focus:bg-[var(--surface)] focus:border-[var(--brand-blue-light)] focus:ring-2 focus:ring-[var(--brand-blue-light)] transition-colors placeholder:text-[var(--text-subtle)] outline-none"
@@ -38,7 +39,7 @@ const Navbar = ({ searchQuery = '', onSearchChange, hackathonCount = 0 }) => {
                     <span className="text-[11px] font-medium tracking-wide">{hackathonCount} open</span>
                 </div>
                 
-                <Link href="/login" className="text-[14px] font-medium text-[var(--text-muted)] hover:text-[var(--brand-blue)] transition-colors">
+                <Link href="/auth" className="text-[14px] font-medium text-[var(--text-muted)] hover:text-[var(--brand-blue)] transition-colors">
                     Sign in
                 </Link>
             </div>

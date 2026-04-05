@@ -22,9 +22,9 @@ function DeadlinesContent({ user }) {
 
     async function loadData() {
       const [{ data: savedRows }, { data: appliedRows }, { data: reminderRows }] = await Promise.all([
-        supabase.from('saved_hackathons').select('hackathon_id').eq('user_id', user.id),
-        supabase.from('hackathon_entries').select('hackathon_id').eq('user_id', user.id).eq('status', 'applied'),
-        supabase.from('reminders').select('*').eq('user_id', user.id),
+        supabase.from('saved_hackathons').select('hackathon_id').eq('user_id', user.uid),
+        supabase.from('hackathon_entries').select('hackathon_id').eq('user_id', user.uid).eq('status', 'applied'),
+        supabase.from('reminders').select('*').eq('user_id', user.uid),
       ]);
 
       const ids = new Set();
@@ -55,11 +55,14 @@ function DeadlinesContent({ user }) {
     return () => {
       mounted = false;
     };
-  }, [user.id]);
+  }, [user.uid]);
 
   const getUrgency = (hackathon) => {
     if (!hackathon.reg_end_date) return 'comfortable';
-    const days = Math.round((new Date(hackathon.reg_end_date) - new Date()) / (1000 * 60 * 60 * 24));
+    const deadline = new Date(hackathon.reg_end_date + 'T00:00:00');
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const days = Math.round((deadline - today) / (1000 * 60 * 60 * 24));
     if (days <= 3) return 'urgent';
     if (days <= 10) return 'soon';
     return 'comfortable';
@@ -67,7 +70,10 @@ function DeadlinesContent({ user }) {
 
   const getTimeText = (hackathon) => {
     if (!hackathon.reg_end_date) return 'TBA';
-    const days = Math.round((new Date(hackathon.reg_end_date) - new Date()) / (1000 * 60 * 60 * 24));
+    const deadline = new Date(hackathon.reg_end_date + 'T00:00:00');
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const days = Math.round((deadline - today) / (1000 * 60 * 60 * 24));
     if (days < 0) return 'Ended';
     if (days === 0) return 'Today';
     return `${days} ${days === 1 ? 'day' : 'days'}`;
@@ -87,7 +93,7 @@ function DeadlinesContent({ user }) {
             key={hackathon.id}
             hackathonName={hackathon.title}
             source="Find-a-thon"
-            deadlineDate={hackathon.reg_end_date ? new Date(hackathon.reg_end_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : 'Unknown'}
+            deadlineDate={hackathon.reg_end_date ? new Date(hackathon.reg_end_date + 'T00:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : 'Unknown'}
             deadlineTimeText={getTimeText(hackathon)}
             urgency={getUrgency(hackathon)}
             isBookmarked={true}

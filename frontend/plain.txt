@@ -1,0 +1,43 @@
+﻿  Γû▓ Next.js 14.2.33
+  - Environments: .env.local
+
+   Creating an optimized production build ...
+ Γ£ô Compiled successfully
+   Linting and checking validity of types ...
+node.exe : 
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo        
+      : NotSpecified: (:  
+  String) [], RemoteExc   
+ eption
+    + FullyQualifiedError 
+   Id : NativeCommandErr  
+  or
+ 
+Failed to compile.
+
+./src/components/Performan
+ceEntryCard.jsx
+80:13  Error: `"` can be 
+escaped with `&quot;`, 
+`&ldquo;`, `&#34;`, 
+`&rdquo;`.  react/no-unesc
+aped-entities
+80:27  Error: `"` can be 
+escaped with `&quot;`, 
+`&ldquo;`, `&#34;`, 
+`&rdquo;`.  react/no-unesc
+aped-entities
+
+info  - Need to disable 
+some ESLint rules? Learn 
+more here: https://nextjs.
+org/docs/basic-features/es
+lint#disabling-rules

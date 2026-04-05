@@ -27,7 +27,7 @@ function TrackerDetailContent({ user }) {
 
     async function loadData() {
       const [{ data: entryRow }, { data: hackathonRows }] = await Promise.all([
-        supabase.from('hackathon_entries').select('*').eq('id', params.id).eq('user_id', user.id).maybeSingle(),
+        supabase.from('hackathon_entries').select('*').eq('id', params.id).eq('user_id', user.uid).maybeSingle(),
         supabase.from('hackathons').select('id,title').order('reg_end_date', { ascending: true }),
       ]);
 
@@ -41,7 +41,7 @@ function TrackerDetailContent({ user }) {
     return () => {
       mounted = false;
     };
-  }, [params.id, user.id]);
+  }, [params.id, user.uid]);
 
   const reflection = useMemo(() => entry?.my_reflection || 'No reflection yet.', [entry]);
 
@@ -52,7 +52,7 @@ function TrackerDetailContent({ user }) {
   if (editMode) {
     return (
       <EntryForm
-        userId={user.id}
+        userId={user.uid}
         initialValues={entry}
         hackathons={hackathons}
         onSaved={() => (window.location.href = `/tracker/${entry.id}`)}

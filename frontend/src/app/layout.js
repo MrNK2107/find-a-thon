@@ -16,12 +16,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${inter.variable}`}>
-      <body className="font-sans antialiased flex h-screen overflow-hidden">
+      <body className="font-sans antialiased min-h-screen flex flex-col">
         <Providers>
-          {/* We will add Sidebar here later */}
-          <main className="flex-1 h-full overflow-y-auto">
-            {children}
-          </main>
+          {children}
         </Providers>
       </body>
     </html>

@@ -77,7 +77,7 @@ export default function PerformanceEntryCard({
         
         {description && (
           <p className="text-[13px] text-neutral-400 italic leading-relaxed mb-4 line-clamp-2">
-            "{description}"
+            &quot;{description}&quot;
           </p>
         )}
         

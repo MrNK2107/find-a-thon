@@ -32,7 +32,7 @@ function DashboardContent({ user }) {
       const { data } = await supabase
         .from('hackathon_entries')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', user.uid)
         .order('created_at', { ascending: false });
       if (mounted) setEntries(data || []);
     }
@@ -40,7 +40,7 @@ function DashboardContent({ user }) {
     return () => {
       mounted = false;
     };
-  }, [user.id]);
+  }, [user.uid]);
 
   const stats = useMemo(() => {
     const total = entries.length;
@@ -167,10 +167,10 @@ function DashboardContent({ user }) {
               eventName={entry.hackathon_title}
               date={entry.submitted_at ? new Date(entry.submitted_at).toLocaleDateString() : 'N/A'}
               teamSizeLabel={`Team of ${entry.team_size || 1}`}
-              status={entry.result.replace('_', '-')}
+              status={entry.result?.replace('_', '-') ?? 'in-progress'}
               tags={entry.tech_stack || []}
-              description={entry.description || ''}
-              repoUrl={entry.github_url}
+              description={entry.project_description || ''}
+              repoUrl={entry.repo_url}
               projectUrl={entry.demo_url}
             />
           ))}

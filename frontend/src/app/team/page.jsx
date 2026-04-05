@@ -50,7 +50,7 @@ function TeamContent({ user }) {
     });
   }, [listings, skillFilter, hackathonFilter, availableSpotsFilter]);
 
-  const myListings = useMemo(() => listings.filter((listing) => listing.user_id === user.id), [listings, user.id]);
+  const myListings = useMemo(() => listings.filter((listing) => listing.user_id === user.uid), [listings, user.uid]);
 
   return (
     <div className="space-y-6">
@@ -64,7 +64,7 @@ function TeamContent({ user }) {
         </select>
       </div>
 
-      <TeamListingForm userId={user.id} onCreated={loadData} />
+      <TeamListingForm userId={user.uid} onCreated={loadData} />
 
       <section>
         <h2 className="text-lg font-semibold text-slate-900 mb-3">Open listings</h2>
@@ -97,7 +97,7 @@ function TeamContent({ user }) {
               <p className="text-sm text-slate-700">{listing.hackathon_title || 'General listing'}</p>
               <button
                 onClick={async () => {
-                  await supabase.from('team_listings').update({ is_open: false }).eq('id', listing.id).eq('user_id', user.id);
+                  await supabase.from('team_listings').update({ is_open: false }).eq('id', listing.id).eq('user_id', user.uid);
                   loadData();
                 }}
                 className="text-sm text-red-700"

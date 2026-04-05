@@ -42,5 +42,5 @@ function NewEntryContent({ user }) {
     };
   }, [searchParams]);
 
-  return <EntryForm userId={user.id} initialValues={prefill} hackathons={hackathons} onSaved={() => (window.location.href = '/tracker')} />;
+  return <EntryForm userId={user.uid} initialValues={prefill} hackathons={hackathons} onSaved={() => (window.location.href = '/tracker')} />;
 }

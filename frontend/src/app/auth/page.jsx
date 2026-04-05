@@ -37,11 +37,11 @@ export default function AuthPage() {
       router.push('/dashboard');
     } catch (error) {
       if (error.code === 'auth/invalid-credential') {
-        setMessage('Invalid email or password. Please try again.');
+        setMessage('Invalid email or password.');
       } else if (error.code === 'auth/email-already-in-use') {
-        setMessage('An account already exists with this email.');
+        setMessage('Account already exists with this email.');
       } else if (error.code === 'auth/weak-password') {
-        setMessage('Password should be at least 6 characters.');
+        setMessage('Password must be at least 6 characters.');
       } else {
         setMessage(error.message);
       }
