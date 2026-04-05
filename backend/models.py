@@ -12,7 +12,10 @@ class HackathonItem(BaseModel):
     source_platform: str
     is_offline: bool = False
     image_url: Optional[str] = None
-    themes: str = ""
+    themes: list[str] = Field(default_factory=list)
+    description: Optional[str] = None
+    is_closed: bool = False
+    prize: Optional[str] = None
 
     @computed_field
     @property
@@ -28,4 +31,10 @@ class HackathonItem(BaseModel):
             "link": self.link,
             "image_url": self.image_url,
             "source": self.source_platform,
+            "organizer": self.organizer,
+            "themes": self.themes,
+            "description": self.description,
+            "is_closed": self.is_closed,
+            "prize": self.prize,
+            "location": self.location
         }

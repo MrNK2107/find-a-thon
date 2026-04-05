@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Find-a-thon | Discover Hackathons</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary-fixed": "#e5e2dd",
+              "tertiary-fixed-dim": "#9dd770",
+              "inverse-surface": "#2f3130",
+              "surface": "#f9f9f7",
+              "on-primary-container": "#c1d9ff",
+              "on-secondary-fixed-variant": "#474743",
+              "secondary-fixed-dim": "#c9c6c1",
+              "on-tertiary": "#ffffff",
+              "outline-variant": "#c2c6d2",
+              "surface-container": "#eeeeec",
+              "on-primary-fixed-variant": "#004883",
+              "tertiary-fixed": "#b8f389",
+              "on-error-container": "#93000a",
+              "secondary": "#5f5e5a",
+              "error": "#ba1a1a",
+              "on-tertiary-container": "#aee97f",
+              "on-surface-variant": "#424751",
+              "surface-container-highest": "#e2e3e1",
+              "on-surface": "#1a1c1b",
+              "primary": "#004782",
+              "surface-container-low": "#f4f4f2",
+              "inverse-primary": "#a4c9ff",
+              "surface-tint": "#1960a6",
+              "on-secondary": "#ffffff",
+              "tertiary-container": "#386a0d",
+              "background": "#f9f9f7",
+              "surface-variant": "#e2e3e1",
+              "on-background": "#1a1c1b",
+              "secondary-container": "#e2dfda",
+              "surface-dim": "#dadad8",
+              "on-tertiary-fixed-variant": "#265100",
+              "surface-container-high": "#e8e8e6",
+              "on-secondary-container": "#64635e",
+              "on-primary": "#ffffff",
+              "error-container": "#ffdad6",
+              "primary-fixed-dim": "#a4c9ff",
+              "on-secondary-fixed": "#1c1c19",
+              "surface-container-lowest": "#ffffff",
+              "primary-fixed": "#d4e3ff",
+              "surface-bright": "#f9f9f7",
+              "on-error": "#ffffff",
+              "inverse-on-surface": "#f1f1ef",
+              "on-tertiary-fixed": "#0c2000",
+              "tertiary": "#265000",
+              "primary-container": "#185fa5",
+              "outline": "#727782",
+              "on-primary-fixed": "#001c39"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+            font-size: 18px;
+            vertical-align: middle;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased flex h-screen overflow-hidden">
+<!-- SideNavBar (JSON Derived) -->
+<aside class="hidden md:flex flex-col h-full py-6 px-4 gap-2 bg-[#f9f9f7] dark:bg-neutral-950 h-screen w-64 border-r border-outline-variant/15 font-['Inter'] text-sm font-medium">
+<div class="flex items-center gap-3 px-2 mb-8">
+<div class="w-8 h-8 rounded-lg bg-primary-container flex items-center justify-center text-white font-bold">F</div>
+<div>
+<h1 class="text-lg font-black text-[#1a1c1b] dark:text-white leading-none">Find-a-thon</h1>
+<p class="text-[10px] text-secondary uppercase tracking-widest mt-1">Hackathon Workspace</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 bg-white dark:bg-neutral-800 text-[#185fa5] border-r-4 border-[#185fa5] rounded-l-none transition-all duration-200 translate-x-1" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-[#5f5e5a] dark:text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-[#185fa5] transition-all duration-200" href="#">
+<span class="material-symbols-outlined">trophy</span>
+                Competitions
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-[#5f5e5a] dark:text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-[#185fa5] transition-all duration-200" href="#">
+<span class="material-symbols-outlined">groups</span>
+                Team Finder
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-[#5f5e5a] dark:text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-[#185fa5] transition-all duration-200" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+                Resources
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-[#5f5e5a] dark:text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-[#185fa5] transition-all duration-200" href="#">
+<span class="material-symbols-outlined">settings</span>
+                Settings
+            </a>
+</nav>
+<div class="mt-auto pt-6 border-t border-outline-variant/10 space-y-1">
+<button class="w-full mb-4 bg-gradient-to-br from-primary to-primary-container text-white py-2.5 rounded-xl font-semibold text-sm active:scale-95 transition-transform duration-100">
+                Find a Team
+            </button>
+<a class="flex items-center gap-3 px-3 py-2 text-[#5f5e5a] dark:text-neutral-500 hover:bg-neutral-100 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">help</span>
+                Help Center
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-[#5f5e5a] dark:text-neutral-500 hover:bg-neutral-100 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">logout</span>
+                Sign Out
+            </a>
+</div>
+</aside>
+<main class="flex-1 flex flex-col min-w-0 bg-background overflow-y-auto">
+<!-- TopNavBar (JSON Derived) -->
+<header class="bg-[#f9f9f7] dark:bg-neutral-900 font-['Inter'] antialiased tracking-tight docked full-width top-0 z-50 border-b border-neutral-200/50 dark:border-neutral-800/50 flat no shadows flex justify-between items-center w-full px-6 py-3 max-w-full">
+<div class="flex items-center gap-8">
+<span class="text-xl font-bold tracking-tighter text-[#1a1c1b] dark:text-white md:hidden">Find-a-thon</span>
+<nav class="hidden lg:flex gap-6">
+<a class="text-[#185fa5] font-semibold border-b-2 border-[#185fa5] pb-1" href="#">Explore</a>
+<a class="text-[#5f5e5a] dark:text-neutral-400 font-medium hover:text-[#185fa5] transition-colors duration-200" href="#">My Teams</a>
+<a class="text-[#5f5e5a] dark:text-neutral-400 font-medium hover:text-[#185fa5] transition-colors duration-200" href="#">Dashboard</a>
+<a class="text-[#5f5e5a] dark:text-neutral-400 font-medium hover:text-[#185fa5] transition-colors duration-200" href="#">Calendar</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-sm font-medium text-secondary hover:text-primary transition-colors">Sign In</button>
+<button class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-bold active:scale-95 duration-100">Create Hackathon</button>
+</div>
+</header>
+<section class="p-8 max-w-6xl mx-auto w-full">
+<header class="mb-10">
+<h2 class="text-3xl font-extrabold tracking-tight text-on-surface mb-2">Discover Hackathons</h2>
+<p class="text-secondary max-w-lg">Curated high-performance coordination workspaces for the world's most innovative builders.</p>
+</header>
+<!-- 2-column grid layout for Discovery Cards -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+<!-- State 1: Default -->
+<article class="bg-surface-container-lowest rounded-xl border border-on-background/[0.12] p-[16px] flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start">
+<!-- Top-left: Logo -->
+<div class="w-[36px] h-[36px] bg-primary/10 rounded-lg flex items-center justify-center">
+<span class="text-primary font-bold text-xs uppercase">AI</span>
+</div>
+<!-- Top-right: Status badges -->
+<div class="flex gap-2">
+<span class="px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-[10px] font-bold uppercase tracking-wider">Online</span>
+</div>
+</div>
+<div class="space-y-1">
+<h3 class="text-[15px] font-medium text-[#185FA5] leading-tight">Neural Nexus AI Challenge</h3>
+<p class="text-[12px] text-[#5F5E5A]">Organized by Cognitive Labs</p>
+</div>
+<!-- Meta row -->
+<div class="flex flex-wrap items-center gap-4 text-[12px] text-secondary/70">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined !text-[14px]">calendar_today</span>
+                            Nov 15-17
+                        </div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined !text-[14px]">groups</span>
+                            2-4 Members
+                        </div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined !text-[14px]">location_on</span>
+                            Global
+                        </div>
+</div>
+<!-- Footer -->
+<div class="pt-4 mt-auto border-t border-on-background/[0.08] flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-[#185FA5] font-bold text-[14px]">$5,000</span>
+<span class="text-[11px] text-secondary">Ends Dec 01</span>
+</div>
+<div class="flex items-center gap-3">
+<button class="text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined">bookmark</span>
+</button>
+<button class="bg-[#185FA5] text-white text-[12px] font-bold px-4 py-1.5 rounded-lg active:scale-95 transition-transform">
+                                Apply →
+                            </button>
+</div>
+</div>
+</article>
+<!-- State 2: Saved / Bookmark Filled -->
+<article class="bg-surface-container-lowest rounded-xl border border-on-background/[0.12] p-[16px] flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start">
+<div class="w-[36px] h-[36px] bg-tertiary/10 rounded-lg flex items-center justify-center">
+<span class="text-tertiary font-bold text-xs uppercase">ET</span>
+</div>
+<div class="flex gap-2">
+<span class="px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-[10px] font-bold uppercase tracking-wider">In-person</span>
+</div>
+</div>
+<div class="space-y-1">
+<h3 class="text-[15px] font-medium text-[#185FA5] leading-tight">EcoTech Global Summit</h3>
+<p class="text-[12px] text-[#5F5E5A]">Green Future Collective</p>
+</div>
+<div class="flex flex-wrap items-center gap-4 text-[12px] text-secondary/70">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined !text-[14px]">calendar_today</span>
+                            Oct 28-30
+                        </div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined !text-[14px]">groups</span>
+                            3-5 Members
+                        </div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined !text-[14px]">location_on</span>
+                            Berlin, DE
+                        </div>
+</div>
+<div class="pt-4 mt-auto border-t border-on-background/[0.08] flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-[#185FA5] font-bold text-[14px]">$12,500</span>
+<span class="text-[11px] text-secondary">Ends Nov 10</span>
+</div>
+<div class="flex items-center gap-3">
+<button class="text-[#6A5ACD] transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">bookmark</span>
+</button>
+<button class="bg-[#185FA5] text-white text-[12px] font-bold px-4 py-1.5 rounded-lg active:scale-95 transition-transform">
+                                Apply →
+                            </button>
+</div>
+</div>
+</article>
+<!-- State 3: Urgent -->
+<article class="bg-surface-container-lowest rounded-xl border border-on-background/[0.12] p-[16px] flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+<div class="flex justify-between items-start">
+<div class="w-[36px] h-[36px] bg-error/10 rounded-lg flex items-center justify-center">
+<span class="text-error font-bold text-xs uppercase">SC</span>
+</div>
+<div class="flex gap-2">
+<span class="px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-[10px] font-bold uppercase tracking-wider">Hybrid</span>
+<span class="px-3 py-1 rounded-full bg-[#A32D2D]/10 text-[#A32D2D] text-[10px] font-bold uppercase tracking-wider">2 days left</span>
+</div>
+</div>
+<div class="space-y-1">
+<h3 class="text-[15px] font-medium text-[#185FA5] leading-tight">Smart City Infrastructure Hack</h3>
+<p class="text-[12px] text-[#5F5E5A]">Urban OS Foundation</p>
+</div>
+<div class="flex flex-wrap items-center gap-4 text-[12px] text-secondary/70">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined !text-[14px]">calendar_today</span>
+                            Oct 12-14
+                        </div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined !text-[14px]">groups</span>
+                            Solo or Teams
+                        </div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined !text-[14px]">location_on</span>
+                            Hybrid / SF
+                        </div>
+</div>
+<div class="pt-4 mt-auto border-t border-on-background/[0.08] flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-[#185FA5] font-bold text-[14px]">$20,000</span>
+<span class="text-[11px] text-[#A32D2D] font-medium">Ends Oct 10</span>
+</div>
+<div class="flex items-center gap-3">
+<button class="text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined">bookmark</span>
+</button>
+<button class="bg-[#185FA5] text-white text-[12px] font-bold px-4 py-1.5 rounded-lg active:scale-95 transition-transform">
+                                Apply →
+                            </button>
+</div>
+</div>
+</article>
+<!-- Additional Card to complete the grid: Upcoming -->
+<article class="bg-surface-container-lowest rounded-xl border border-on-background/[0.12] p-[16px] flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start">
+<div class="w-[36px] h-[36px] bg-secondary-fixed-dim/20 rounded-lg flex items-center justify-center">
+<span class="text-secondary font-bold text-xs uppercase">DP</span>
+</div>
+<div class="flex gap-2">
+<span class="px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-[10px] font-bold uppercase tracking-wider">Online</span>
+</div>
+</div>
+<div class="space-y-1">
+<h3 class="text-[15px] font-medium text-[#185FA5] leading-tight">Data Privacy Protocols</h3>
+<p class="text-[12px] text-[#5F5E5A]">SecureScale Tech</p>
+</div>
+<div class="flex flex-wrap items-center gap-4 text-[12px] text-secondary/70">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined !text-[14px]">calendar_today</span>
+                            Jan 05-08
+                        </div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined !text-[14px]">groups</span>
+                            1-3 Members
+                        </div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined !text-[14px]">location_on</span>
+                            Virtual
+                        </div>
+</div>
+<div class="pt-4 mt-auto border-t border-on-background/[0.08] flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-[#185FA5] font-bold text-[14px]">$7,500</span>
+<span class="text-[11px] text-secondary">Ends Dec 15</span>
+</div>
+<div class="flex items-center gap-3">
+<button class="text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined">bookmark</span>
+</button>
+<button class="bg-[#185FA5] text-white text-[12px] font-bold px-4 py-1.5 rounded-lg active:scale-95 transition-transform">
+                                Apply →
+                            </button>
+</div>
+</div>
+</article>
+</div>
+</section>
+<!-- Bento Grid Section for Platform Highlights -->
+<section class="p-8 max-w-6xl mx-auto w-full mb-12">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="md:col-span-2 bg-surface-container-low p-8 rounded-2xl flex flex-col justify-end min-h-[320px] relative overflow-hidden">
+<img alt="Team collaborating" class="absolute inset-0 w-full h-full object-cover opacity-20 mix-blend-multiply" data-alt="close-up of diverse team members hands working together on a modern workspace table with laptops and sketches in soft morning light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfGwyhfBv-eDMS7EQHGoQabFyIKUv6OvWwSk5PULUfhgG-H18cX7P-ciDTyNYEInDywiXb1XN-fUmDymUjKRndb-TeCKuFNp0ZolVYPZc_4HbhfpMnYi4Xe7EJ5vbId1RoMZaIwdlqPYtlQq1oIi-ixjQ4zLEw_CW0PX79HTGrZhgr5aEKap3xDBk2JN5p5DKIpzV3uwxAAdZxcReEYCkG-vXBGYgkZIrvOrl304ZHPvBbW6i04A1kz0KJKQfygjKxOvrZPD4wYYA"/>
+<div class="relative z-10">
+<span class="bg-primary-container text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">New Feature</span>
+<h3 class="text-2xl font-bold mt-4 mb-2 text-on-surface">Integrated Workspace</h3>
+<p class="text-secondary text-sm max-w-md">Manage your entire hackathon lifecycle from team formation to final submission in one unified, high-performance environment.</p>
+</div>
+</div>
+<div class="bg-primary p-8 rounded-2xl flex flex-col justify-between text-white">
+<span class="material-symbols-outlined !text-4xl" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+<div>
+<h3 class="text-xl font-bold mb-2">Verified Teams</h3>
+<p class="text-primary-fixed-dim text-sm">Every participant is vetted through our trust protocol to ensure elite coordination.</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 glass-panel border-t border-outline-variant/15 flex justify-around items-center py-3 px-2 z-50">
+<a class="flex flex-col items-center gap-1 text-[#185fa5]" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">explore</span>
+<span class="text-[10px] font-semibold">Explore</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-secondary" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span class="text-[10px] font-medium">Teams</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-secondary" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-[10px] font-medium">Dash</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-secondary" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span class="text-[10px] font-medium">Dates</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-secondary" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-medium">Profile</span>
+</a>
+</nav>
+</body></html>

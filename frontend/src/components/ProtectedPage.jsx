@@ -1,48 +1,22 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabaseClient';
+import { useEffect } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 
 export default function ProtectedPage({ title, children }) {
-  const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState(null);
+  const { user } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
-    let mounted = true;
-
-    async function checkAuth() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!mounted) return;
-      if (!user) {
-        window.location.href = '/auth';
-        return;
-      }
-
-      await supabase.from('profiles').upsert(
-        {
-          id: user.id,
-          name: user.user_metadata?.full_name || user.email?.split('@')[0] || null,
-          avatar_url: user.user_metadata?.avatar_url || null,
-          joined_at: new Date().toISOString(),
-        },
-        { onConflict: 'id' }
-      );
-
-      setUser(user);
-      setLoading(false);
+    if (!user) {
+      router.push('/auth');
     }
+  }, [user, router]);
 
-    checkAuth();
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  if (loading) {
-    return <div className="min-h-screen bg-slate-100 flex items-center justify-center">Checking session...</div>;
+  if (!user) {
+    return null; // Don't render protected content while redirecting
   }
 
   return (

@@ -45,6 +45,15 @@ class HackerEarthScraper(GenericScraper):
 
                 text_content = card.inner_text()
                 end_date = extract_reg_end_date_from_text(text_content)
+                description = text_content.strip()[:280] if text_content else None
+                is_closed = any(word in text_content.lower() for word in ["closed", "ended", "finished", "completed"])
+
+                themes = []
+                tag_els = card.query_selector_all(".tag, .tags a, [class*='tag']")
+                for tag in tag_els[:6]:
+                    label = tag.inner_text().strip()
+                    if label and label.lower() not in {"new", "online"}:
+                        themes.append(label)
 
                 items.append(HackathonItem(
                     title=title,
@@ -52,6 +61,9 @@ class HackerEarthScraper(GenericScraper):
                     link=link,
                     source_platform="HackerEarth",
                     image_url=image_url or None,
+                    description=description,
+                    themes=themes,
+                    is_closed=is_closed,
                 ))
             except Exception:
                 continue
@@ -90,6 +102,9 @@ class HackerEarthScraper(GenericScraper):
                         source_platform=item.source_platform,
                         is_offline=item.is_offline,
                         image_url=item.image_url,
+                        description=item.description,
+                        themes=item.themes,
+                        is_closed=item.is_closed,
                     ))
                 else:
                     self.logger.warning(f"No date found for: {item.title}")

@@ -73,6 +73,11 @@ class AllCollegeEventScraper(GenericScraper):
                     if dt:
                         date_val = dt.strftime("%Y-%m-%d")
 
+                lower_text = date_text.lower()
+                is_closed = any(word in lower_text for word in ["closed", "ended", "completed"])
+                description = date_text.strip()[:240] if date_text else None
+                themes = [kw.upper() for kw in ["ai", "ml", "web", "iot", "cloud", "data"] if kw in lower_text]
+
                 items.append(HackathonItem(
                     title=title,
                     date=date_val,
@@ -81,6 +86,9 @@ class AllCollegeEventScraper(GenericScraper):
                     location="Chennai",
                     is_offline=True,
                     image_url=image_url or None,
+                    description=description,
+                    themes=themes,
+                    is_closed=is_closed,
                 ))
             except Exception:
                 continue
@@ -119,6 +127,9 @@ class AllCollegeEventScraper(GenericScraper):
                         source_platform=item.source_platform,
                         is_offline=item.is_offline,
                         image_url=item.image_url,
+                        description=item.description,
+                        themes=item.themes,
+                        is_closed=item.is_closed,
                     ))
                 else:
                     self.logger.warning(f"No date found for: {item.title}")

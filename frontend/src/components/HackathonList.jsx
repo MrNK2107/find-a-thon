@@ -46,8 +46,8 @@ const HackathonList = ({ initialHackathons, searchQuery = '', showBookmark = fal
     }, [initialHackathons, activeFilter, showUrgency, searchQuery]);
 
     return (
-        <div className="min-h-screen bg-[#0f172a]">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+        <div className="w-full">
+            <div className="w-full">
 
                 <FilterBar
                     activeFilter={activeFilter}
@@ -57,17 +57,17 @@ const HackathonList = ({ initialHackathons, searchQuery = '', showBookmark = fal
                 />
 
                 {(!filteredHackathons || filteredHackathons.length === 0) ? (
-                    <div className="flex flex-col items-center justify-center py-20 text-center text-slate-400">
-                        <div className="w-24 h-24 bg-slate-800 rounded-full flex items-center justify-center mb-6">
-                            <span className="text-4xl">🔭</span>
+                    <div className="flex flex-col items-center justify-center py-20 text-center text-secondary border border-on-background/[0.08] bg-surface-container-low rounded-2xl mt-6">
+                        <div className="w-20 h-20 bg-surface-variant/50 rounded-full flex items-center justify-center mb-6">
+                            <span className="material-symbols-outlined !text-4xl text-outline-variant">telescope</span>
                         </div>
-                        <h3 className="text-xl font-bold text-white mb-2">No hackathons found</h3>
-                        <p className="max-w-sm">
+                        <h3 className="text-xl font-bold text-on-surface mb-2">No hackathons found</h3>
+                        <p className="max-w-sm text-sm">
                             We couldn&apos;t find any events matching your filters. Try adjusting them.
                         </p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
                         {filteredHackathons.map((hackathon) => (
                             <HackathonCard key={hackathon.id} hackathon={hackathon} showBookmark={showBookmark} />
                         ))}

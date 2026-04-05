@@ -51,3 +51,6 @@ frontend/pnpm-debug.log*
 # Lockfiles - keep package.json, but ignore lockfiles if using different package managers
 # If you only use npm, you might want to commit package-lock.json
 # frontend/package-lock.json
+
+# Firebase Admin credentials
+my-hackathon-finder-firebase-adminsdk-fbsvc-*.json

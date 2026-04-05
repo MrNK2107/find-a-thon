@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Find-a-thon | Deadlines</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary-fixed": "#e5e2dd",
+              "tertiary-fixed-dim": "#9dd770",
+              "inverse-surface": "#2f3130",
+              "surface": "#f9f9f7",
+              "on-primary-container": "#c1d9ff",
+              "on-secondary-fixed-variant": "#474743",
+              "secondary-fixed-dim": "#c9c6c1",
+              "on-tertiary": "#ffffff",
+              "outline-variant": "#c2c6d2",
+              "surface-container": "#eeeeec",
+              "on-primary-fixed-variant": "#004883",
+              "tertiary-fixed": "#b8f389",
+              "on-error-container": "#93000a",
+              "secondary": "#5f5e5a",
+              "error": "#ba1a1a",
+              "on-tertiary-container": "#aee97f",
+              "on-surface-variant": "#424751",
+              "surface-container-highest": "#e2e3e1",
+              "on-surface": "#1a1c1b",
+              "primary": "#004782",
+              "surface-container-low": "#f4f4f2",
+              "inverse-primary": "#a4c9ff",
+              "surface-tint": "#1960a6",
+              "on-secondary": "#ffffff",
+              "tertiary-container": "#386a0d",
+              "background": "#f9f9f7",
+              "surface-variant": "#e2e3e1",
+              "on-background": "#1a1c1b",
+              "secondary-container": "#e2dfda",
+              "surface-dim": "#dadad8",
+              "on-tertiary-fixed-variant": "#265100",
+              "surface-container-high": "#e8e8e6",
+              "on-secondary-container": "#64635e",
+              "on-primary": "#ffffff",
+              "error-container": "#ffdad6",
+              "primary-fixed-dim": "#a4c9ff",
+              "on-secondary-fixed": "#1c1c19",
+              "surface-container-lowest": "#ffffff",
+              "primary-fixed": "#d4e3ff",
+              "surface-bright": "#f9f9f7",
+              "on-error": "#ffffff",
+              "inverse-on-surface": "#f1f1ef",
+              "on-tertiary-fixed": "#0c2000",
+              "tertiary": "#265000",
+              "primary-container": "#185fa5",
+              "outline": "#727782",
+              "on-primary-fixed": "#001c39"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .bg-dot-urgent { background-color: #A32D2D; }
+      .bg-dot-soon { background-color: #854F0B; }
+      .bg-dot-comfortable { background-color: #3B6D11; }
+      .text-urgent { color: #A32D2D; }
+      .border-thin-bottom { border-bottom: 0.5px solid rgba(194, 198, 210, 0.4); }
+    </style>
+</head>
+<body class="bg-background font-body text-on-surface antialiased">
+<div class="flex min-h-screen">
+<!-- Side Navigation Shell -->
+<aside class="h-screen w-64 border-r bg-[#f9f9f7] dark:bg-neutral-950 flex flex-col py-6 px-4 gap-2 sticky top-0 shrink-0">
+<div class="px-2 mb-8">
+<h1 class="text-lg font-black text-[#1a1c1b] dark:text-white">Find-a-thon</h1>
+<p class="text-xs text-secondary font-medium uppercase tracking-widest opacity-70">Hackathon Workspace</p>
+</div>
+<nav class="flex flex-col gap-1">
+<a class="flex items-center gap-3 px-4 py-2.5 text-[#5f5e5a] dark:text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all duration-200 rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-[#185fa5]">dashboard</span>
+<span class="font-medium text-sm">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 bg-white dark:bg-neutral-800 text-[#185fa5] border-r-4 border-[#185fa5] rounded-l-none transition-all duration-200" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span class="font-medium text-sm">Deadlines</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 text-[#5f5e5a] dark:text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all duration-200 rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-[#185fa5]">trophy</span>
+<span class="font-medium text-sm">Competitions</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 text-[#5f5e5a] dark:text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all duration-200 rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-[#185fa5]">groups</span>
+<span class="font-medium text-sm">Team Finder</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 text-[#5f5e5a] dark:text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all duration-200 rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-[#185fa5]">menu_book</span>
+<span class="font-medium text-sm">Resources</span>
+</a>
+</nav>
+<div class="mt-auto pt-6 border-t border-outline-variant/10">
+<a class="flex items-center gap-3 px-4 py-2.5 text-[#5f5e5a] hover:text-[#185fa5] transition-all duration-200" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-medium text-sm">Help Center</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 text-[#5f5e5a] hover:text-[#185fa5] transition-all duration-200" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-medium text-sm">Sign Out</span>
+</a>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="flex-1 min-w-0 bg-background overflow-y-auto">
+<header class="px-12 py-10">
+<div class="flex justify-between items-end max-w-4xl">
+<div>
+<h2 class="text-3xl font-extrabold tracking-tight text-on-surface">Submission Deadlines</h2>
+<p class="text-secondary mt-1 text-lg">Track your upcoming project milestones and team submissions.</p>
+</div>
+<div class="flex gap-4">
+<button class="px-6 py-2.5 bg-gradient-to-br from-primary to-primary-container text-white text-sm font-semibold rounded-lg hover:shadow-lg transition-all duration-300">
+                            Create Alert
+                        </button>
+</div>
+</div>
+</header>
+<!-- Deadline Tracker Section -->
+<section class="px-12 pb-20">
+<div class="max-w-4xl bg-surface-container-lowest rounded-xl overflow-hidden">
+<!-- Deadline List Container -->
+<div class="flex flex-col">
+<!-- Header for Context -->
+<div class="flex items-center px-10 py-4 bg-surface-container-low/30 border-thin-bottom">
+<span class="text-[10px] font-bold tracking-widest text-secondary uppercase w-8 flex justify-center">Status</span>
+<span class="text-[10px] font-bold tracking-widest text-secondary uppercase ml-4 flex-1">Hackathon &amp; Source</span>
+<span class="text-[10px] font-bold tracking-widest text-secondary uppercase text-right mr-16">Deadline</span>
+</div>
+<!-- Row 1: Urgent -->
+<div class="flex items-center px-10 py-5 bg-white hover:bg-surface-container-lowest transition-colors border-thin-bottom group">
+<div class="w-8 flex justify-center">
+<div class="w-2 h-2 rounded-full bg-dot-urgent shadow-[0_0_8px_rgba(163,45,45,0.4)]"></div>
+</div>
+<div class="flex flex-col ml-4 flex-1">
+<div class="flex items-center gap-2">
+<span class="text-[13px] font-medium text-on-surface">Global AI Innovation Challenge</span>
+<span class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-surface-container-high text-secondary">Devpost</span>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="text-right">
+<span class="text-[13px] font-medium text-on-surface">Apr 5</span>
+<span class="text-[13px] font-semibold text-urgent ml-1.5">(2 days)</span>
+</div>
+<button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[20px] text-primary" style="font-variation-settings: 'FILL' 1;">bookmark</span>
+</button>
+</div>
+</div>
+<!-- Row 2: Soon -->
+<div class="flex items-center px-10 py-5 bg-white hover:bg-surface-container-lowest transition-colors border-thin-bottom group">
+<div class="w-8 flex justify-center">
+<div class="w-2 h-2 rounded-full bg-dot-soon"></div>
+</div>
+<div class="flex flex-col ml-4 flex-1">
+<div class="flex items-center gap-2">
+<span class="text-[13px] font-medium text-on-surface">FinTech Futures 2024</span>
+<span class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-surface-container-high text-secondary">Dorado</span>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="text-right">
+<span class="text-[13px] font-medium text-on-surface">Apr 9</span>
+<span class="text-[13px] font-medium text-secondary ml-1.5">(6 days)</span>
+</div>
+<button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[20px] text-outline">bookmark</span>
+</button>
+</div>
+</div>
+<!-- Row 3: Comfortable -->
+<div class="flex items-center px-10 py-5 bg-white hover:bg-surface-container-lowest transition-colors border-thin-bottom group">
+<div class="w-8 flex justify-center">
+<div class="w-2 h-2 rounded-full bg-dot-comfortable"></div>
+</div>
+<div class="flex flex-col ml-4 flex-1">
+<div class="flex items-center gap-2">
+<span class="text-[13px] font-medium text-on-surface">Eco-Tech Sustainability Sprint</span>
+<span class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-surface-container-high text-secondary">Devpost</span>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="text-right">
+<span class="text-[13px] font-medium text-on-surface">Apr 17</span>
+<span class="text-[13px] font-medium text-secondary ml-1.5">(14 days)</span>
+</div>
+<button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[20px] text-outline">bookmark</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Secondary Info Section (Architectural Minimalist Style) -->
+<div class="mt-12 grid grid-cols-3 gap-8 max-w-4xl">
+<div class="bg-surface-container-low p-6 rounded-xl border border-outline-variant/10">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined text-primary">priority_high</span>
+<h3 class="text-sm font-bold tracking-tight uppercase">Urgent Tasks</h3>
+</div>
+<p class="text-[13px] text-secondary leading-relaxed">You have 1 submission ending within 72 hours. Ensure your GitHub repo is linked and README is finalized.</p>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl border border-outline-variant/10">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined text-tertiary-container">group_work</span>
+<h3 class="text-sm font-bold tracking-tight uppercase">Team Sync</h3>
+</div>
+<p class="text-[13px] text-secondary leading-relaxed">Collaborators are active on 2 projects. Last sync was 4 hours ago for "FinTech Futures".</p>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl border border-outline-variant/10">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined text-secondary">auto_awesome</span>
+<h3 class="text-sm font-bold tracking-tight uppercase">Reminders</h3>
+</div>
+<p class="text-[13px] text-secondary leading-relaxed">Automatic notifications are enabled. We'll ping you 24h before each submission deadline.</p>
+</div>
+</div>
+</section>
+</main>
+</div>
+</body></html>

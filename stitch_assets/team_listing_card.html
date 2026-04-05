@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Find-a-thon | Team Finder</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "secondary-fixed": "#e5e2dd",
+                        "tertiary-fixed-dim": "#9dd770",
+                        "inverse-surface": "#2f3130",
+                        "surface": "#f9f9f7",
+                        "on-primary-container": "#c1d9ff",
+                        "on-secondary-fixed-variant": "#474743",
+                        "secondary-fixed-dim": "#c9c6c1",
+                        "on-tertiary": "#ffffff",
+                        "outline-variant": "#c2c6d2",
+                        "surface-container": "#eeeeec",
+                        "on-primary-fixed-variant": "#004883",
+                        "tertiary-fixed": "#b8f389",
+                        "on-error-container": "#93000a",
+                        "secondary": "#5f5e5a",
+                        "error": "#ba1a1a",
+                        "on-tertiary-container": "#aee97f",
+                        "on-surface-variant": "#424751",
+                        "surface-container-highest": "#e2e3e1",
+                        "on-surface": "#1a1c1b",
+                        "primary": "#004782",
+                        "surface-container-low": "#f4f4f2",
+                        "inverse-primary": "#a4c9ff",
+                        "surface-tint": "#1960a6",
+                        "on-secondary": "#ffffff",
+                        "tertiary-container": "#386a0d",
+                        "background": "#f9f9f7",
+                        "surface-variant": "#e2e3e1",
+                        "on-background": "#1a1c1b",
+                        "secondary-container": "#e2dfda",
+                        "surface-dim": "#dadad8",
+                        "on-tertiary-fixed-variant": "#265100",
+                        "surface-container-high": "#e8e8e6",
+                        "on-secondary-container": "#64635e",
+                        "on-primary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "primary-fixed-dim": "#a4c9ff",
+                        "on-secondary-fixed": "#1c1c19",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed": "#d4e3ff",
+                        "surface-bright": "#f9f9f7",
+                        "on-error": "#ffffff",
+                        "inverse-on-surface": "#f1f1ef",
+                        "on-tertiary-fixed": "#0c2000",
+                        "tertiary": "#265000",
+                        "primary-container": "#185fa5",
+                        "outline": "#727782",
+                        "on-primary-fixed": "#001c39"
+                    },
+                    fontFamily: {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body class="bg-background font-body text-on-surface antialiased">
+<!-- TopNavBar -->
+<nav class="bg-[#f9f9f7] dark:bg-neutral-900 font-['Inter'] antialiased tracking-tight docked full-width top-0 z-50 border-b border-neutral-200/50 dark:border-neutral-800/50 flat no shadows flex justify-between items-center w-full px-6 py-3 max-w-full sticky">
+<div class="flex items-center gap-8">
+<span class="text-xl font-bold tracking-tighter text-[#1a1c1b] dark:text-white">Find-a-thon</span>
+<div class="hidden md:flex gap-6">
+<a class="text-[#5f5e5a] dark:text-neutral-400 font-medium hover:text-[#185fa5] transition-colors duration-200" href="#">Explore</a>
+<a class="text-[#185fa5] font-semibold border-b-2 border-[#185fa5] pb-1" href="#">Team Finder</a>
+<a class="text-[#5f5e5a] dark:text-neutral-400 font-medium hover:text-[#185fa5] transition-colors duration-200" href="#">Dashboard</a>
+<a class="text-[#5f5e5a] dark:text-neutral-400 font-medium hover:text-[#185fa5] transition-colors duration-200" href="#">Calendar</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-[#5f5e5a] font-medium text-sm">Sign In</button>
+<button class="bg-gradient-to-br from-primary to-primary-container text-on-primary px-4 py-2 rounded-lg text-sm font-semibold shadow-sm hover:opacity-90 active:scale-95 transition-all">Create Hackathon</button>
+</div>
+</nav>
+<div class="flex">
+<!-- SideNavBar -->
+<aside class="hidden lg:flex flex-col h-[calc(100vh-64px)] w-64 bg-[#f9f9f7] dark:bg-neutral-950 font-['Inter'] text-sm font-medium border-r border-neutral-200/50 py-6 px-4 gap-2 sticky top-16">
+<div class="mb-6 px-2">
+<p class="text-[10px] uppercase tracking-widest text-secondary font-bold mb-1">WORKSPACE</p>
+<p class="text-on-surface-variant text-xs">Hackathon Workspace</p>
+</div>
+<a class="flex items-center gap-3 px-3 py-2 text-[#5f5e5a] dark:text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-[#185fa5] rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="dashboard">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-[#5f5e5a] dark:text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-[#185fa5] rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="trophy">trophy</span>
+<span>Competitions</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 bg-white dark:bg-neutral-800 text-[#185fa5] border-r-4 border-[#185fa5] rounded-l-none transition-all duration-200 translate-x-1" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="groups">groups</span>
+<span>Team Finder</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-[#5f5e5a] dark:text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-[#185fa5] rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="menu_book">menu_book</span>
+<span>Resources</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-[#5f5e5a] dark:text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-[#185fa5] rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+<div class="mt-auto pt-6 border-t border-neutral-200/50 flex flex-col gap-2">
+<button class="w-full bg-primary-container/10 text-primary font-bold py-2 rounded-lg mb-4 hover:bg-primary-container/20 transition-colors">Find a Team</button>
+<a class="flex items-center gap-3 px-3 py-2 text-secondary hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="help">help</span>
+<span>Help Center</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-secondary hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="logout">logout</span>
+<span>Sign Out</span>
+</a>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 p-8 lg:p-12 max-w-7xl mx-auto">
+<header class="mb-12">
+<h1 class="text-4xl font-extrabold tracking-tight text-on-surface mb-2">Team Finder</h1>
+<p class="text-secondary text-lg max-w-2xl">Connect with other builders, designers, and innovators to form the perfect squad for upcoming competitions.</p>
+</header>
+<!-- Team Listing Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest rounded-xl p-[18px] border-[0.5px] border-black/10 flex flex-col gap-4">
+<div class="flex justify-between items-center">
+<span class="text-[13px] font-bold text-on-surface truncate pr-2">Global FinTech Challenge 2024</span>
+<span class="bg-[#386a0d] text-on-tertiary px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase">Open</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-primary font-bold text-xs">
+                            JD
+                        </div>
+<div class="flex flex-col">
+<span class="text-xs font-semibold text-on-surface leading-none">Jordan Davis</span>
+<span class="bg-primary/10 text-primary-container px-2 py-0.5 rounded-full text-[9px] font-bold mt-1 inline-block w-max">Beginner</span>
+</div>
+</div>
+<div>
+<p class="text-[10px] font-bold text-secondary uppercase tracking-wider mb-2">Looking For</p>
+<div class="flex flex-wrap gap-1.5">
+<span class="bg-[#854f0b]/10 text-[#854f0b] px-3 py-1 rounded-full text-[11px] font-medium">ML</span>
+<span class="bg-[#2d7a7a]/10 text-[#2d7a7a] px-3 py-1 rounded-full text-[11px] font-medium">UI Design</span>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<div class="flex justify-between items-center">
+<span class="text-[11px] text-secondary">2 / 4 spots filled</span>
+<div class="flex gap-1">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<div class="w-2 h-2 rounded-full border border-outline-variant"></div>
+<div class="w-2 h-2 rounded-full border border-outline-variant"></div>
+</div>
+</div>
+</div>
+<p class="text-xs text-secondary line-clamp-2 leading-relaxed">Building a micro-lending platform focusing on agricultural SMEs in emerging markets. Need a data specialist to refine our risk model.</p>
+<div class="mt-auto pt-3 flex items-center justify-between">
+<div class="flex items-center text-secondary">
+<span class="material-symbols-outlined text-lg" data-icon="alternate_email">alternate_email</span>
+</div>
+<button class="border border-primary-container text-primary-container px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-primary-container hover:text-white transition-colors">Express Interest</button>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest rounded-xl p-[18px] border-[0.5px] border-black/10 flex flex-col gap-4">
+<div class="flex justify-between items-center">
+<span class="text-[13px] font-bold text-on-surface truncate pr-2">EcoTech Sustainable Hack</span>
+<span class="bg-[#386a0d] text-on-tertiary px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase">Open</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-tertiary-fixed flex items-center justify-center text-tertiary font-bold text-xs">
+                            SL
+                        </div>
+<div class="flex flex-col">
+<span class="text-xs font-semibold text-on-surface leading-none">Sarah Lin</span>
+<span class="bg-primary/10 text-primary-container px-2 py-0.5 rounded-full text-[9px] font-bold mt-1 inline-block w-max">Intermediate</span>
+</div>
+</div>
+<div>
+<p class="text-[10px] font-bold text-secondary uppercase tracking-wider mb-2">Looking For</p>
+<div class="flex flex-wrap gap-1.5">
+<span class="bg-[#2d7a7a]/10 text-[#2d7a7a] px-3 py-1 rounded-full text-[11px] font-medium">Backend</span>
+<span class="bg-[#854f0b]/10 text-[#854f0b] px-3 py-1 rounded-full text-[11px] font-medium">Cloud Architect</span>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<div class="flex justify-between items-center">
+<span class="text-[11px] text-secondary">3 / 5 spots filled</span>
+<div class="flex gap-1">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<div class="w-2 h-2 rounded-full border border-outline-variant"></div>
+<div class="w-2 h-2 rounded-full border border-outline-variant"></div>
+</div>
+</div>
+</div>
+<p class="text-xs text-secondary line-clamp-2 leading-relaxed">Creating an IoT-based waste management system for high-density urban areas. We have the hardware proto, need API help.</p>
+<div class="mt-auto pt-3 flex items-center justify-between">
+<div class="flex items-center text-secondary">
+<span class="material-symbols-outlined text-lg" data-icon="forum">forum</span>
+</div>
+<button class="border border-primary-container text-primary-container px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-primary-container hover:text-white transition-colors">Express Interest</button>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container-lowest rounded-xl p-[18px] border-[0.5px] border-black/10 flex flex-col gap-4">
+<div class="flex justify-between items-center">
+<span class="text-[13px] font-bold text-on-surface truncate pr-2">EduInnovate Global 2024</span>
+<span class="bg-[#386a0d] text-on-tertiary px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase">Open</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-secondary-fixed flex items-center justify-center text-on-secondary-container font-bold text-xs">
+                            MK
+                        </div>
+<div class="flex flex-col">
+<span class="text-xs font-semibold text-on-surface leading-none">Marcus Kovac</span>
+<span class="bg-primary/10 text-primary-container px-2 py-0.5 rounded-full text-[9px] font-bold mt-1 inline-block w-max">Advanced</span>
+</div>
+</div>
+<div>
+<p class="text-[10px] font-bold text-secondary uppercase tracking-wider mb-2">Looking For</p>
+<div class="flex flex-wrap gap-1.5">
+<span class="bg-[#854f0b]/10 text-[#854f0b] px-3 py-1 rounded-full text-[11px] font-medium">Front-End</span>
+<span class="bg-[#2d7a7a]/10 text-[#2d7a7a] px-3 py-1 rounded-full text-[11px] font-medium">UX Research</span>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<div class="flex justify-between items-center">
+<span class="text-[11px] text-secondary">1 / 3 spots filled</span>
+<div class="flex gap-1">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<div class="w-2 h-2 rounded-full border border-outline-variant"></div>
+<div class="w-2 h-2 rounded-full border border-outline-variant"></div>
+</div>
+</div>
+</div>
+<p class="text-xs text-secondary line-clamp-2 leading-relaxed">Gamifying the curriculum for specialized technical training. I'm handling the logic, looking for a React wizard to make it pop.</p>
+<div class="mt-auto pt-3 flex items-center justify-between">
+<div class="flex items-center text-secondary">
+<span class="material-symbols-outlined text-lg" data-icon="mail">mail</span>
+</div>
+<button class="border border-primary-container text-primary-container px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-primary-container hover:text-white transition-colors">Express Interest</button>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- BottomNavBar for Mobile -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 bg-[#f9f9f7] dark:bg-neutral-900 border-t border-neutral-200/50 flex justify-around items-center py-3 z-50">
+<button class="flex flex-col items-center gap-1 text-secondary">
+<span class="material-symbols-outlined" data-icon="explore">explore</span>
+<span class="text-[10px]">Explore</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined" data-icon="groups" data-weight="fill" style="font-variation-settings: 'FILL' 1;">groups</span>
+<span class="text-[10px] font-semibold">Teams</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-secondary">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-[10px]">Dashboard</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-secondary">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="text-[10px]">Profile</span>
+</button>
+</nav>
+</body></html>

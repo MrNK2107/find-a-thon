@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary-fixed": "#e5e2dd",
+              "tertiary-fixed-dim": "#9dd770",
+              "inverse-surface": "#2f3130",
+              "surface": "#f9f9f7",
+              "on-primary-container": "#c1d9ff",
+              "on-secondary-fixed-variant": "#474743",
+              "secondary-fixed-dim": "#c9c6c1",
+              "on-tertiary": "#ffffff",
+              "outline-variant": "#c2c6d2",
+              "surface-container": "#eeeeec",
+              "on-primary-fixed-variant": "#004883",
+              "tertiary-fixed": "#b8f389",
+              "on-error-container": "#93000a",
+              "secondary": "#5f5e5a",
+              "error": "#ba1a1a",
+              "on-tertiary-container": "#aee97f",
+              "on-surface-variant": "#424751",
+              "surface-container-highest": "#e2e3e1",
+              "on-surface": "#1a1c1b",
+              "primary": "#004782",
+              "surface-container-low": "#f4f4f2",
+              "inverse-primary": "#a4c9ff",
+              "surface-tint": "#1960a6",
+              "on-secondary": "#ffffff",
+              "tertiary-container": "#386a0d",
+              "background": "#f9f9f7",
+              "surface-variant": "#e2e3e1",
+              "on-background": "#1a1c1b",
+              "secondary-container": "#e2dfda",
+              "surface-dim": "#dadad8",
+              "on-tertiary-fixed-variant": "#265100",
+              "surface-container-high": "#e8e8e6",
+              "on-secondary-container": "#64635e",
+              "on-primary": "#ffffff",
+              "error-container": "#ffdad6",
+              "primary-fixed-dim": "#a4c9ff",
+              "on-secondary-fixed": "#1c1c19",
+              "surface-container-lowest": "#ffffff",
+              "primary-fixed": "#d4e3ff",
+              "surface-bright": "#f9f9f7",
+              "on-error": "#ffffff",
+              "inverse-on-surface": "#f1f1ef",
+              "on-tertiary-fixed": "#0c2000",
+              "tertiary": "#265000",
+              "primary-container": "#185fa5",
+              "outline": "#727782",
+              "on-primary-fixed": "#001c39"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .custom-card-border {
+        border: 0.5px solid rgba(0, 0, 0, 0.12);
+      }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased">
+<!-- Top Navigation Anchor -->
+<nav class="bg-[#f9f9f7] dark:bg-neutral-900 font-['Inter'] antialiased tracking-tight border-b border-neutral-200/50 dark:border-neutral-800/50 flex justify-between items-center w-full px-6 py-3 max-w-full sticky top-0 z-50">
+<div class="flex items-center gap-8">
+<span class="text-xl font-bold tracking-tighter text-[#1a1c1b] dark:text-white">Find-a-thon</span>
+<div class="hidden md:flex items-center gap-6">
+<a class="text-[#5f5e5a] dark:text-neutral-400 font-medium hover:text-[#185fa5] transition-colors duration-200" href="#">Explore</a>
+<a class="text-[#5f5e5a] dark:text-neutral-400 font-medium hover:text-[#185fa5] transition-colors duration-200" href="#">My Teams</a>
+<a class="text-[#185fa5] font-semibold border-b-2 border-[#185fa5] pb-1" href="#">Dashboard</a>
+<a class="text-[#5f5e5a] dark:text-neutral-400 font-medium hover:text-[#185fa5] transition-colors duration-200" href="#">Calendar</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-[#5f5e5a] font-medium hover:bg-neutral-100 px-4 py-2 rounded-lg transition-colors">Sign In</button>
+<button class="bg-gradient-to-br from-primary to-primary-container text-white px-5 py-2 rounded-xl font-semibold shadow-sm hover:opacity-90 active:scale-95 transition-all">Create Hackathon</button>
+</div>
+</nav>
+<main class="max-w-7xl mx-auto px-6 py-12">
+<!-- Header Section -->
+<header class="mb-10">
+<h1 class="text-3xl font-extrabold tracking-tight text-on-surface mb-2">Workspace Overview</h1>
+<p class="text-secondary text-lg">Performance metrics for your current hackathon season.</p>
+</header>
+<!-- Stats Grid (4-Column Layout) -->
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+<!-- Variant 1: Total Entered (Neutral) -->
+<div class="bg-surface-container-lowest custom-card-border rounded-xl p-[18px] flex flex-col justify-between min-h-[140px] hover:bg-surface-container-low transition-colors duration-300">
+<div class="flex flex-col gap-1">
+<span class="text-[11px] font-bold uppercase tracking-widest text-secondary">TOTAL ENTERED</span>
+<div class="flex items-baseline gap-2">
+<span class="text-[24px] font-medium text-on-surface">12</span>
+<span class="text-xs text-on-surface-variant/60 font-medium">+2 this month</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-[11px] text-secondary">Across 4 platforms</span>
+<div class="h-1 flex-1 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary-fixed-dim w-3/4"></div>
+</div>
+</div>
+</div>
+<!-- Variant 2: Win Rate (Success Green) -->
+<div class="bg-surface-container-lowest custom-card-border rounded-xl p-[18px] flex flex-col justify-between min-h-[140px] hover:bg-surface-container-low transition-colors duration-300">
+<div class="flex flex-col gap-1">
+<span class="text-[11px] font-bold uppercase tracking-widest text-secondary">WIN RATE</span>
+<span class="text-[24px] font-medium text-[#3B6D11]">42%</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-[11px] text-secondary">3 of 7 hackathons</span>
+<span class="material-symbols-outlined text-[#3B6D11] text-sm" data-icon="trending_up">trending_up</span>
+</div>
+</div>
+<!-- Variant 3: Upcoming (Primary Blue) -->
+<div class="bg-surface-container-lowest custom-card-border rounded-xl p-[18px] flex flex-col justify-between min-h-[140px] hover:bg-surface-container-low transition-colors duration-300">
+<div class="flex flex-col gap-1">
+<span class="text-[11px] font-bold uppercase tracking-widest text-secondary">UPCOMING</span>
+<span class="text-[24px] font-medium text-[#185FA5]">04</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-[11px] text-secondary">Next starts in 2d</span>
+<div class="flex -space-x-2">
+<img class="w-5 h-5 rounded-full border-2 border-surface-container-lowest" data-alt="portrait of a young developer in minimalist workspace" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIBbge_im2fRdBszwYCmQ2U-BIoXQWFYRgdL75-AUxlyotMNQc5ogPnJs9xTQL3my-8_pru1Lot9B1E6MktB4pLeYDe9lNJPG-RFrjJMzS_NmY7MVsCQGk0czj2xb9KjmNXeDtja2_vTK-ieyJzrgzlwZ-1BDv8ni9uWZqTn7v5UGwWYRasSZBOnJ9UmiO3Yx28YZCkgM6P8EJnxAnW0X7TQVQfAjLIdsksfCs_cGwqZYrjkvg0_QPeGvrvZNxnNfod5bHSZixFmk"/>
+<img class="w-5 h-5 rounded-full border-2 border-surface-container-lowest" data-alt="headshot of smiling designer in modern creative office" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBeY6eUt03Jdifnc7YcYAeGsVd5H4JDbeh_QZNoXF2pHWua_USZlNzTMPI85-_xycuUmQwcuiOgKLW3IhzeX1GOXrD1FV5VHkd_ttYVpYRST-IVT_pudyf9ewRwhJoeee9jpY20U-cqsqvQn0pwX2lrz2uY_8xCtrYArG8uzwhVGGsMAY2u4B2OU0zDOVH1I2FFprcAWV-VMxpzTaODJ2rbFYJvDlARvc6aUZbhH3GPSArsNxC_dTGTFQ2zBxjqVFAT9-RmyoJ1ifs"/>
+</div>
+</div>
+</div>
+<!-- Variant 4: Prize Won (Amber) -->
+<div class="bg-surface-container-lowest custom-card-border rounded-xl p-[18px] flex flex-col justify-between min-h-[140px] hover:bg-surface-container-low transition-colors duration-300">
+<div class="flex flex-col gap-1">
+<span class="text-[11px] font-bold uppercase tracking-widest text-secondary">PRIZE WON</span>
+<span class="text-[24px] font-medium text-[#854F0B]">$12,400</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-[11px] text-secondary">Cumulative 2024</span>
+<span class="material-symbols-outlined text-[#854F0B] text-sm" data-icon="workspace_premium" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+</div>
+</div>
+</section>
+<!-- Secondary Contextual Area (Bento-lite) -->
+<section class="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
+<div class="lg:col-span-2 bg-surface-container-lowest custom-card-border rounded-xl p-8">
+<div class="flex justify-between items-center mb-8">
+<h2 class="text-xl font-bold tracking-tight">Active Team Progress</h2>
+<span class="text-sm font-semibold text-primary cursor-pointer hover:underline">View all</span>
+</div>
+<div class="space-y-6">
+<!-- Progress Item 1 -->
+<div class="space-y-2">
+<div class="flex justify-between text-sm">
+<span class="font-medium">CyberSec Global 2024</span>
+<span class="text-secondary">72% complete</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container-highest rounded-full">
+<div class="h-full bg-primary rounded-full" style="width: 72%"></div>
+</div>
+</div>
+<!-- Progress Item 2 -->
+<div class="space-y-2">
+<div class="flex justify-between text-sm">
+<span class="font-medium">AI Frontier Hack</span>
+<span class="text-secondary">24% complete</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container-highest rounded-full">
+<div class="h-full bg-primary rounded-full" style="width: 24%"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-primary-container rounded-xl p-8 relative overflow-hidden flex flex-col justify-end min-h-[280px]">
+<img class="absolute inset-0 w-full h-full object-cover opacity-20 mix-blend-overlay" data-alt="abstract technological circuit board glowing with blue light in dark environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBa52W2ixce-0DLRPBXB1jTGa3_j1FFpIV0FNvd-bq5GjegP1FysllvGGhMRbxT12HT8d4CAM0A96GmkLuRF1ASI2kgv3sgygsdHyN3oUz4oXHmfnqNjG5n8HQRY5WIq0cPSnWBhcb9OnrPplIghgrZjlcMdow6tYFVWzJ55dmRAtIYeIKfAwVSLs_C8i4Pk187CitA6GVqAcO3WhmwSDL7th8Ggn1a8ypl9ZDf2CM1SOvSuaj8JHGK6wj9iVPapeeS550VQ4e-E14"/>
+<div class="relative z-10">
+<span class="text-[10px] font-black uppercase tracking-widest text-on-primary-container mb-2 block">RECOMMENDED</span>
+<h3 class="text-2xl font-bold text-white leading-tight mb-4">Mastering the Pitch: A Workshop</h3>
+<button class="bg-white text-primary px-6 py-2.5 rounded-lg text-sm font-bold shadow-lg hover:bg-surface-container-lowest transition-colors">Join Session</button>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer Space -->
+<footer class="mt-20 py-12 px-6 border-t border-outline-variant/10 text-center">
+<p class="text-secondary text-sm">© 2024 Find-a-thon. Built for the architectural minimalist.</p>
+</footer>
+</body></html>

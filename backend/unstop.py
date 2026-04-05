@@ -76,6 +76,14 @@ class UnstopScraper(GenericScraper):
                     is_offline = eligible.get("is_offline", False)
 
                 logo = opp.get("logoUrl2") or opp.get("logoUrl") or ""
+                description = opp.get("seo_description") or opp.get("description") or opp.get("short_desc") or None
+                themes_raw = opp.get("themes") or opp.get("tags") or []
+                themes = []
+                if isinstance(themes_raw, list):
+                    themes = [str(tag.get("name") if isinstance(tag, dict) else tag).strip() for tag in themes_raw if str(tag).strip()]
+
+                status_value = str(opp.get("status") or opp.get("oppstatus") or "").lower()
+                is_closed = status_value in {"closed", "completed", "ended"}
 
                 items.append(HackathonItem(
                     title=title,
@@ -86,6 +94,9 @@ class UnstopScraper(GenericScraper):
                     source_platform="Unstop",
                     is_offline=bool(is_offline),
                     image_url=logo,
+                    description=description,
+                    themes=themes,
+                    is_closed=is_closed,
                 ))
         return items
 
@@ -119,6 +130,9 @@ class UnstopScraper(GenericScraper):
                         source_platform=item.source_platform,
                         is_offline=item.is_offline,
                         image_url=item.image_url,
+                        description=item.description,
+                        themes=item.themes,
+                        is_closed=item.is_closed,
                     ))
                 else:
                     self.logger.warning(f"No date found for: {item.title}")
@@ -155,5 +169,7 @@ class UnstopScraper(GenericScraper):
                 title=title,
                 link=link,
                 source_platform="Unstop",
+                description=title,
+                is_closed=False,
             ))
         return items

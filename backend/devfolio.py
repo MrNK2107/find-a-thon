@@ -69,7 +69,10 @@ class DevfolioScraper(GenericScraper):
                 is_offline = h.get("is_offline", False)
                 logo = h.get("logo", "") or h.get("cover_img", "") or ""
                 organizer = h.get("organisation_name", "") or ""
-                themes = ", ".join(h.get("themes", [])) if isinstance(h.get("themes"), list) else ""
+                themes = h.get("themes", []) if isinstance(h.get("themes"), list) else []
+                description = h.get("description") or h.get("subtitle") or h.get("tagline") or None
+                status_value = str(h.get("status") or h.get("state") or "").lower()
+                is_closed = status_value in {"closed", "ended", "completed"}
 
                 items.append(HackathonItem(
                     title=name,
@@ -81,6 +84,8 @@ class DevfolioScraper(GenericScraper):
                     is_offline=bool(is_offline),
                     image_url=logo,
                     themes=themes,
+                    description=description,
+                    is_closed=is_closed,
                 ))
         return items
 
@@ -114,6 +119,8 @@ class DevfolioScraper(GenericScraper):
                         is_offline=item.is_offline,
                         image_url=item.image_url,
                         themes=item.themes,
+                        description=item.description,
+                        is_closed=item.is_closed,
                     ))
                 else:
                     self.logger.warning(f"No date found for: {item.title}")
@@ -143,5 +150,7 @@ class DevfolioScraper(GenericScraper):
                 title=title,
                 link=link,
                 source_platform="Devfolio",
+                description=title,
+                is_closed=False,
             ))
         return items

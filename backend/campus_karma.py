@@ -51,6 +51,7 @@ class CampusKarmaScraper(GenericScraper):
                 source_platform="CampusKarma",
                 location="Chennai",
                 is_offline=True,
+                description=title,
             ))
 
         for item in candidates[:20]:
@@ -79,6 +80,10 @@ class CampusKarmaScraper(GenericScraper):
                 if not date_val:
                     date_val = search_date_on_web(item.title)
 
+                lower_body = body.lower()
+                themes = [kw.upper() for kw in ["ai", "ml", "web", "iot", "cloud", "data"] if kw in lower_body]
+                is_closed = any(word in lower_body for word in ["registration closed", "event ended", "completed"])
+
                 items.append(HackathonItem(
                     title=item.title,
                     date=date_val,
@@ -86,6 +91,9 @@ class CampusKarmaScraper(GenericScraper):
                     source_platform="CampusKarma",
                     location="Chennai",
                     is_offline=True,
+                    description=body.strip()[:320] if body else item.description,
+                    themes=themes,
+                    is_closed=is_closed,
                 ))
                 detail.close()
             except Exception:

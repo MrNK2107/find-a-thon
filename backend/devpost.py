@@ -53,10 +53,18 @@ class DevpostScraper(GenericScraper):
                 if date_el:
                     end_date = self._parse_date_range(date_el.inner_text().strip())
 
-                themes = ""
+                themes = []
                 theme_els = tile.query_selector_all(".theme-label")
                 if theme_els:
-                    themes = ", ".join(t.inner_text().strip() for t in theme_els)
+                    themes = [t.inner_text().strip() for t in theme_els]
+
+                description = None
+                desc_el = tile.query_selector(".challenge-description, .tagline, .description")
+                if desc_el:
+                    description = desc_el.inner_text().strip()[:280] or None
+
+                tile_text = tile.inner_text().lower()
+                is_closed = any(word in tile_text for word in ["closed", "ended", "finished", "completed"])
 
                 items.append(HackathonItem(
                     title=title,
@@ -65,6 +73,8 @@ class DevpostScraper(GenericScraper):
                     source_platform="Devpost",
                     image_url=image_url or None,
                     themes=themes,
+                    description=description,
+                    is_closed=is_closed,
                 ))
             except Exception:
                 continue
@@ -110,6 +120,8 @@ class DevpostScraper(GenericScraper):
                         is_offline=item.is_offline,
                         image_url=item.image_url,
                         themes=item.themes,
+                        description=item.description,
+                        is_closed=item.is_closed,
                     ))
                 else:
                     self.logger.warning(f"No date found for: {item.title}")

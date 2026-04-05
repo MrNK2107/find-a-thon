@@ -66,6 +66,9 @@ class KnowafestScraper(GenericScraper):
 
                 organizer = self._extract_organizer(detail_page)
                 location = self._extract_location(body_text) or "Chennai"
+                themes = [kw.upper() for kw in ["ai", "ml", "data", "web", "iot", "cloud"] if kw in lower_body]
+                is_closed = any(word in lower_body for word in ["registration closed", "event ended", "completed"])
+                description = body_text.strip()[:320] if body_text else None
 
                 enriched.append(HackathonItem(
                     title=item.title,
@@ -75,6 +78,9 @@ class KnowafestScraper(GenericScraper):
                     link=item.link,
                     source_platform="Knowafest",
                     is_offline=True,
+                    description=description,
+                    themes=themes,
+                    is_closed=is_closed,
                 ))
                 detail_page.close()
             except Exception:
