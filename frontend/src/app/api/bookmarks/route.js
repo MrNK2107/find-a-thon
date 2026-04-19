@@ -69,3 +69,46 @@ export async function POST(request) {
     return NextResponse.json({ error: error.message || 'Unexpected error' }, { status: 500 });
   }
 }
+
+export async function GET(request) {
+  try {
+    const authHeader = request.headers.get('authorization') || '';
+    const token = authHeader.replace('Bearer ', '').trim();
+
+    if (!token) {
+      return NextResponse.json({ error: 'Missing authorization token' }, { status: 401 });
+    }
+
+    const decoded = await getAuth().verifyIdToken(token);
+    const uid = decoded.uid;
+
+    const { searchParams } = new URL(request.url);
+    const hackathonId = searchParams.get('hackathonId');
+
+    if (hackathonId) {
+      const { data } = await adminClient
+        .from('saved_hackathons')
+        .select('id')
+        .eq('user_id', uid)
+        .eq('hackathon_id', hackathonId)
+        .maybeSingle();
+
+      return NextResponse.json({ saved: Boolean(data) });
+    }
+
+    const { data, error } = await adminClient
+      .from('saved_hackathons')
+      .select('hackathon_id')
+      .eq('user_id', uid);
+
+    if (error) {
+      throw error;
+    }
+
+    return NextResponse.json({
+      savedHackathonIds: (data || []).map((row) => row.hackathon_id).filter(Boolean),
+    });
+  } catch (error) {
+    return NextResponse.json({ error: error.message || 'Unexpected error' }, { status: 500 });
+  }
+}

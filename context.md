@@ -1,392 +1,212 @@
-# Find-a-thon Context
+# Find-a-thon: Current Project Status (as of 2026-04-18)
 
-## 1) Project Snapshot
+## 1) Scope and Architecture
 
-Find-a-thon is a two-part hackathon discovery system:
+Find-a-thon is currently a dual-stack project:
 
-- A Python backend scraper pipeline that aggregates upcoming hackathons from multiple platforms, normalizes and deduplicates records, then upserts them to Supabase.
-- A Next.js frontend that reads from Supabase and renders a filtered grid of hackathons.
+1. Python backend scraper pipeline in `backend/`
+2. Next.js + Firebase + Supabase frontend in `frontend/`
 
-Primary objective: keep a single `hackathons` table populated with fresh, non-expired, deduplicated events ordered by registration deadline.
+Current intended flow:
 
----
-
-## 2) Repository Layout
-
-```text
-find-a-thon/
-  README.md
-  backend/
-    main.py                  # pipeline entrypoint
-    base_scraper.py          # shared scraper runtime + Playwright helpers
-    models.py                # HackathonItem model + DB row mapping
-    dedup.py                 # hash-based deduplication
-    filters.py               # Chennai keyword filters
-    utils.py                 # logging, env parsing, date parsing, Supabase client
-    unstop.py                # Unstop scraper
-    devfolio.py              # Devfolio scraper
-    devpost.py               # Devpost scraper
-    hackerearth.py           # HackerEarth scraper
-    knowafest.py             # Knowafest scraper (Chennai-focused)
-    campus_karma.py          # CampusKarma scraper (Chennai-focused)
-    allcollegeevent.py       # AllCollegeEvent scraper (Chennai-focused)
-    requirements.txt
-    run_log.txt
-  frontend/
-    package.json
-    README.md
-    src/
-      app/
-        layout.js
-        page.js              # server component, Supabase query
-      components/
-        Navbar.jsx
-        FilterBar.jsx
-        HackathonList.jsx
-        HackathonCard.jsx
-      lib/
-        supabaseClient.js
-```
+1. Scrapers collect hackathon rows from multiple sources
+2. Data is deduplicated and date-normalized
+3. Rows are upserted to Supabase `hackathons`
+4. Frontend reads from Supabase and renders discovery/workspace pages
 
 ---
 
-## 3) Backend Architecture
+## 2) What Is Present and Working Well
 
-### 3.1 Orchestration (`backend/main.py`)
+### 2.1 Backend code structure is solid and complete
 
-Main workflow:
+The backend has complete modular coverage:
 
-1. Instantiate and run all scrapers in `ALL_SCRAPERS`.
-2. Merge all raw `HackathonItem` objects.
-3. Deduplicate using `DeduplicationEngine` (`title + date` hash).
-4. Compute Chennai-area count via `is_chennai` (for logging/analytics).
-5. Normalize rows and enforce strict date validity (`normalize_and_filter`).
-6. Upsert rows to Supabase in batches (`upload_data`).
-7. Delete expired rows from Supabase (`delete_expired`).
+- Shared scraper base and lifecycle: `backend/base_scraper.py`
+- Source scrapers: `backend/unstop.py`, `backend/devfolio.py`, `backend/devpost.py`, `backend/hackerearth.py`, `backend/knowafest.py`, `backend/campus_karma.py`, `backend/allcollegeevent.py`
+- Data model: `backend/models.py`
+- Dedup logic: `backend/dedup.py`
+- Date extraction and env helpers: `backend/utils.py`
+- End-to-end orchestration: `backend/main.py`
 
-Key characteristics:
+`backend/main.py` includes:
 
-- Scraper failure isolation: one scraper crashing does not stop the full run.
-- Strict date requirement before upload: items without parseable `reg_end_date` are dropped.
-- Expired events are dropped before upload and cleaned up in DB.
+- Shared Playwright session reuse across scrapers
+- Per-scraper crash isolation (a failing scraper does not stop the run)
+- Date normalization and expired-item filtering before upload
+- Batched Supabase upsert
+- Expired-record cleanup
 
-### 3.2 Shared Scraper Runtime (`backend/base_scraper.py`)
+### 2.2 Data model is richer than before
 
-`GenericScraper` provides:
+`backend/models.py` includes more metadata fields in `HackathonItem` and maps them to Supabase row shape:
 
-- Headless Chromium Playwright setup.
-- Randomized user-agent selection.
-- Optional `playwright-stealth` application when installed.
-- API/XHR response interception helper (`_intercept_api`).
-- Safe selector helpers (`_safe_text`, `_safe_attr`).
-- Standard `run()` wrapper with logging, browser lifecycle cleanup, and error handling.
+- `description`, `themes`, `prize`, `organizer`, `location`, `is_closed`, `status`, `last_synced_at`
 
-### 3.3 Data Model (`backend/models.py`)
+This aligns better with the frontend cards and detail pages than minimal title/date/link-only models.
 
-`HackathonItem` fields:
+### 2.3 Frontend compiles successfully right now
 
-- `title` (required)
-- `organizer`
-- `date` (registration end date candidate)
-- `location`
-- `link` (required)
-- `source_platform` (required)
-- `is_offline`
-- `image_url`
-- `themes`
+Verified in this workspace today:
 
-Derived behavior:
+- `npm run lint`: passes with no ESLint errors
+- `npm run build`: passes and generates all app routes
 
-- `dedup_hash = sha256(lower(title) + "|" + date)`
-- `to_supabase_dict()` maps to DB columns:
-  - `title`
-  - `mode` (`Offline`/`Online`)
-  - `reg_end_date`
-  - `link`
-  - `image_url`
-  - `source`
+This means the codebase is currently buildable, even though some runtime behavior is still incorrect.
 
-### 3.4 Deduplication (`backend/dedup.py`)
+### 2.4 Frontend app shell and auth scaffolding are in place
 
-Simple in-memory dedup engine:
+Working structural pieces:
 
-- Maintains `set` of seen hashes.
-- Retains first seen item per hash.
-- Process scope only (state not persisted across runs).
+- Root provider wiring via `frontend/src/app/providers.jsx` and `frontend/src/context/AuthContext.js`
+- Protected route shell via `frontend/src/components/ProtectedPage.jsx`
+- Navigation/workspace shell via `frontend/src/components/Sidebar.jsx`
+- Email/password auth flow UI in `frontend/src/app/auth/page.jsx`
 
-### 3.5 Date Intelligence (`backend/utils.py`)
+### 2.5 Main feature pages exist with non-trivial implementations
 
-Date parsing strategy (important for pipeline quality):
+Implemented pages/components include:
 
-- `parse_date_flexible(value)`:
-  - Handles `datetime`, `date`, or free-form string.
-  - Uses `search_dates` and `dateparser`.
-  - Normalizes to `YYYY-MM-DD`.
+- Explore: `frontend/src/app/explore/page.jsx`
+- Saved: `frontend/src/app/saved/page.jsx`
+- Deadlines: `frontend/src/app/deadlines/page.jsx`
+- Tracker: `frontend/src/app/tracker/page.jsx`, `frontend/src/app/tracker/new/page.jsx`, `frontend/src/app/tracker/[id]/page.jsx`
+- Dashboard: `frontend/src/app/dashboard/page.jsx`
+- Team Finder: `frontend/src/app/team/page.jsx`
 
-- `extract_reg_end_date_from_text(text)`:
-  - Handles countdown-like strings (`Xd Yh Zm`), deadline patterns, keyword window scanning, and global fallback extraction.
-
-- `search_date_on_web(query_title)`:
-  - DuckDuckGo snippet fallback using `duckduckgo-search`.
-  - Attempts date extraction from snippet/title text.
-
-### 3.6 Geographic Filter (`backend/filters.py`)
-
-- Regex keyword matching for Chennai and nearby localities.
-- Used in pipeline for count logging (`chennai_count`) but not for hard filtering before upload.
+UI component depth is substantial (cards, forms, charts, badges, list filtering, bookmark button), so this is not a stub project.
 
 ---
 
-## 4) Scrapers and Source Behavior
+## 3) What Is Currently Broken (Confirmed)
 
-### 4.1 Unstop (`backend/unstop.py`)
+### 3.1 Core listing pages pass wrong prop name into `HackathonList`
 
-- Target: `https://unstop.com/hackathons?oppstatus=open`
-- Primary strategy: intercept API payload (`unstop.com/api/public/opportunity/search-new`)
-- Fallback: DOM links (`/hackathon/`)
-- Missing date enrichment: opens detail page, extracts date from body; then web-search fallback.
+`HackathonList` expects prop `hackathons`, but these pages pass `initialHackathons`:
 
-### 4.2 Devfolio (`backend/devfolio.py`)
+- `frontend/src/app/explore/page.jsx`
+- `frontend/src/app/saved/page.jsx`
 
-- Target: `https://devfolio.co/hackathons/open`
-- Primary strategy: intercept `api.devfolio.co`
-- Fallback: DOM links (`/hackathons/`)
-- Supports multiple API field names for end date.
-- Missing date enrichment: detail page + web-search fallback.
+`HackathonList` signature is:
 
-### 4.3 Devpost (`backend/devpost.py`)
+- `frontend/src/components/HackathonList.jsx`
+  - `const HackathonList = ({ hackathons, searchQuery = '', ... })`
 
-- Target: online upcoming hackathons listing.
-- Strategy: DOM tile scraping (`.hackathon-tile`), scroll-until-stable.
-- Date extraction from submission range text + detail-page enrichment.
-- Captures image and themes when available.
+Because the wrong prop key is passed, `hackathons` is `undefined` in these paths. The component then returns an empty list path and surfaces "No hackathons found" even if page state has data.
 
-### 4.4 HackerEarth (`backend/hackerearth.py`)
+This is a confirmed runtime bug.
 
-- Target: challenges listing.
-- Strategy: flexible selector fallback for cards.
-- Initial date extraction from card text; enriches missing dates from detail pages.
+### 3.2 Explore page has incomplete filter wiring
 
-### 4.5 Knowafest (`backend/knowafest.py`)
+`frontend/src/app/explore/page.jsx` imports `FilterBar` but does not render it. The list receives no `filters` prop from this page.
 
-- Target: Chennai city listing.
-- Strategy: collect event links, then inspect detail pages.
-- Filters detail pages to tech/hackathon-related content via keyword list.
-- Extracts organizer/location hints and dates via regex + fallback extractors.
-- Marks events as offline by default.
+Result: filtering controls are not available on the active explore route despite filter-capable components existing.
 
-### 4.6 CampusKarma (`backend/campus_karma.py`)
+### 3.3 Auth identity model is internally inconsistent across frontend modules
 
-- Target: main site.
-- Strategy: broad event link discovery, title/href keyword filtering.
-- Focused on hackathon-like candidates; Chennai/offline defaults.
-- Date extraction via regex, generic extractor, web-search fallback.
+The app mostly uses Firebase auth state (`user.uid`) through `AuthContext`, but `frontend/src/app/hackathon/[id]/page.jsx` calls `supabase.auth.getUser()` for the user object.
 
-### 4.7 AllCollegeEvent (`backend/allcollegeevent.py`)
+That route then uses `user.id` when upserting `hackathon_entries`, while most other pages write/read using Firebase UID (`user.uid`).
 
-- Target: main site (with optional click-through to Chennai links).
-- Strategy: event card selectors + fallback anchor matching.
-- Initial date extraction from card text + detail-page enrichment.
-- Chennai/offline defaults.
+This is a concrete mismatch likely to cause applied-entry writes/reads to diverge by page.
 
----
+### 3.4 Schema files contradict each other for `saved_hackathons`
 
-## 5) Data Contract with Supabase
+`database/schema_updates.sql` and `database/supabase_schema.sql` define incompatible types:
 
-### 5.1 Expected table
+- One version uses `user_id uuid`, `hackathon_id bigint`
+- Another version uses `user_id text`, `hackathon_id uuid`, plus `remind_me`
 
-Backend writes to table: `hackathons`
+Frontend bookmark flow uses Firebase UID string (`user.uid`) and sends `hackathon_id` from `hackathons.id`.
 
-Observed upsert conflict key:
+Without a single active schema contract, this area is currently fragile and can fail depending on which SQL was applied.
 
-- `link` (must be unique or conflict-targeted in Supabase table constraints)
+### 3.5 Backend run evidence shows incomplete/unstable scraper execution
 
-### 5.2 Columns used by backend
+Historical runtime log (`backend/run_log.txt`, UTF-16 encoded) shows:
 
-Write path expects these columns to exist:
+- Unstop scraped 0
+- Devfolio scraped 0
+- Devpost scraped 18
+- HackerEarth scraped 0
+- Log ends during Knowafest start (run appears interrupted)
 
-- `title` (text)
-- `mode` (text)
-- `reg_end_date` (date/text parseable as date)
-- `link` (text, unique suggested)
-- `image_url` (text, nullable)
-- `source` (text)
-
-### 5.3 Columns used by frontend
-
-Frontend reads `select('*')` and references:
-
-- `id` (for list key in UI)
-- `title`
-- `link`
-- `reg_end_date`
-- `image_url`
-- `source`
-- `mode`
-- `themes` (optional in UI)
-- `description` (optional in UI, fallback text if absent)
-- `is_closed` (optional; controls Closed/Live badge)
-
-Implication:
-
-- Some UI fields are optional and not populated by current backend (`description`, `is_closed`, typically `themes`).
+So current scraper reliability is not proven end-to-end by recent log evidence.
 
 ---
 
-## 6) Environment Variables
+## 4) What Is Risky / Uncertain Right Now
 
-### 6.1 Backend
+### 4.1 Backend has heavy external dependency chain for date extraction
 
-Required:
+`backend/utils.py` fallback behavior depends on:
 
-- `SUPABASE_URL`
-- `SUPABASE_KEY`
+- `duckduckgo-search` query success
+- Optional Ollama local endpoint (`http://localhost:11434`, model `qwen2.5`)
 
-Optional:
+If these are unavailable or rate-limited, many records can keep missing dates and then be dropped by `normalize_and_filter` in `backend/main.py`.
 
-- `SUPABASE_UPSERT_BATCH_SIZE` (default `200`)
+### 4.2 DB schema source of truth is missing for `hackathons`
 
-Backend loads `.env` via `python-dotenv`.
+Both SQL files mainly alter or reference `hackathons`, but no full table creation for `hackathons` is present in this repo snapshot.
 
-### 6.2 Frontend (`frontend/.env.local`)
+Project assumes an existing external table shape.
 
-Required:
+### 4.3 Mixed auth model increases RLS and type mismatch risk
 
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+The code mixes:
 
-`frontend/src/lib/supabaseClient.js` throws immediately if either value is missing.
+- Firebase client auth and Firebase Admin verification
+- Supabase table writes with service role
+- SQL policies based on `auth.uid()` semantics in one schema variant
 
----
+This can work only if DB types/policies and token strategy are aligned in the deployed environment.
 
-## 7) Dependencies
+### 4.4 Some logged errors in repo are stale and not current blockers
 
-### 7.1 Backend (`backend/requirements.txt`)
+Legacy files such as `frontend/plain.txt` contain old build failures (for `PerformanceEntryCard.jsx`) that are no longer reproducible; current lint/build pass.
 
-- playwright
-- playwright-stealth
-- pydantic
-- supabase
-- python-dotenv
-- dateparser
-- beautifulsoup4
-- duckduckgo-search
-
-Notes:
-
-- Playwright browsers must be installed separately after pip install.
-- BeautifulSoup is currently listed but not obviously used in scanned files.
-
-### 7.2 Frontend (`frontend/package.json`)
-
-Runtime:
-
-- next 14.x
-- react 18
-- react-dom 18
-- @supabase/supabase-js
-
-Dev:
-
-- tailwindcss
-- postcss
-- autoprefixer
-- eslint + eslint-config-next
+These logs should be treated as historical context, not present-state blockers.
 
 ---
 
-## 8) Frontend Architecture
+## 5) Current Functional Snapshot by Area
 
-### 8.1 Rendering model
+### Backend pipeline
 
-- `src/app/page.js` is an async Server Component.
-- It queries Supabase directly on request and exports `dynamic = 'force-dynamic'` to avoid static caching.
-- Hackathons are ordered by `reg_end_date ASC`.
+- Code completeness: High
+- Observed successful recent full run: Not confirmed
+- Known hard failure from current code read: None obvious
+- Operational reliability: Medium to low (based on partial run logs and source fragility)
 
-### 8.2 Components
+### Frontend build/deploy readiness
 
-- `Navbar.jsx`: branding, static search input, static live count badge.
-- `FilterBar.jsx`: platform/mode chips and urgency toggle.
-- `HackathonList.jsx`: client-side filtering (`useMemo`) + grid/no-results states.
-- `HackathonCard.jsx`: event card UI with source badge, status, date formatting, action button.
+- Build status in this workspace: Passing
+- Lint status in this workspace: Passing
+- Runtime correctness on key list pages: Not fully correct due to prop mismatch
 
-### 8.3 Filtering logic (`HackathonList`)
+### Auth + bookmarks
 
-Supports:
+- Auth UI/context implementation: Present and functional for Firebase email/password
+- Bookmark API and button implementation: Present
+- Cross-schema compatibility confidence: Medium/low due to SQL contradictions
 
-- Source/mode filter (`all`, source names, mode labels)
-- Urgency filter: registration deadline within next 7 days
-- Search by `title`, `description`, `themes`
+### Workspace features (tracker, dashboard, team)
 
-Current wiring note:
-
-- `searchQuery` state exists in `HackathonList`, but there is no prop pipeline from `Navbar` input to update it.
-- So search UI appears present but does not currently drive filtering.
+- UI and CRUD code exists across pages/forms/components
+- Depends strongly on user_id type consistency and applied schema
 
 ---
 
-## 9) End-to-End Data Flow
+## 6) Net Status (Current Reality)
 
-1. Scrapers gather `HackathonItem` records (API interception and/or DOM extraction).
-2. Missing date enrichment attempts detail-page parsing.
-3. Optional web search fallback tries to infer deadlines from snippets.
-4. Global dedup by `title + date` hash.
-5. Final normalization requires parseable, non-expired date.
-6. Supabase upsert by `link` conflict key.
-7. Frontend reads `hackathons` and applies client-side filters.
+The project is not an empty prototype. It has substantial backend and frontend implementation, compiles successfully, and contains end-to-end feature code for discovery, saving, deadlines, tracking, dashboard, and team listings.
 
----
+At the same time, it is not fully reliable in current state due to:
 
-## 10) Operational Runbook
+1. Confirmed frontend runtime wiring bug (`initialHackathons` vs `hackathons`)
+2. Auth identity inconsistency (Firebase UID vs Supabase auth user usage)
+3. Contradictory database schema files for core relationship tables
+4. Incomplete evidence of stable multi-source scraper runs from recent logs
 
-### 10.1 Backend local run
-
-1. Create and activate Python environment.
-2. Install requirements from `backend/requirements.txt`.
-3. Install Playwright browser binaries.
-4. Configure `.env` with Supabase credentials.
-5. Run `python backend/main.py` from repository root (or run from `backend` with adjusted paths).
-
-### 10.2 Frontend local run
-
-1. `cd frontend`
-2. `npm install`
-3. Create `.env.local` with Supabase public values.
-4. `npm run dev`
-5. Open `http://localhost:3000`
-
----
-
-## 11) Known Gaps / Risks
-
-- Search bar is not wired to filter state (UI/behavior mismatch).
-- Backend does not consistently populate fields used in UI (`description`, `is_closed`, often `themes`).
-- Dedup key uses only `title + date`; similarly named events on same date could collide.
-- Web search fallback can add latency and may return noisy date candidates.
-- Scraper selectors are source-site fragile and may break as sites change markup.
-- Some scraper defaults force `location='Chennai'` and `is_offline=True`, which may over-assume metadata.
-- No explicit automated tests observed for scraper parsing, normalization, or frontend filtering behavior.
-
----
-
-## 12) Suggested Next Improvements
-
-1. Wire navbar search input to `HackathonList` search state.
-2. Define and enforce a Supabase schema contract (including nullable/optional fields).
-3. Add source-specific parser tests with fixture HTML/API payload snapshots.
-4. Introduce run-level metrics (per-source success rate, missing-date rate, dropped reasons).
-5. Add retry/backoff and timeout telemetry around detail-page enrichment.
-6. Consider stronger dedup key (e.g., canonicalized URL + normalized title + source).
-
----
-
-## 13) Quick File Index for New Contributors
-
-- Start backend flow: `backend/main.py`
-- Start scraper abstraction: `backend/base_scraper.py`
-- Understand DB write shape: `backend/models.py`
-- Troubleshoot date drops: `backend/utils.py`, `backend/main.py::normalize_and_filter`
-- Understand frontend data fetch: `frontend/src/app/page.js`
-- Understand filter UX: `frontend/src/components/HackathonList.jsx`, `frontend/src/components/FilterBar.jsx`
-
-This document is intended as a living context file and should be updated whenever scraper logic, schema assumptions, or runtime configuration changes.
+This is the current state snapshot only (no future implementation plan included).

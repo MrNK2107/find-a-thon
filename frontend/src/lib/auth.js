@@ -1,10 +1,8 @@
-import { supabase } from '@/lib/supabaseClient';
+import { signOut as firebaseSignOut } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
 
 export async function getCurrentUser() {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  return user;
+  return auth.currentUser;
 }
 
 export async function requireUser(redirectTo = '/auth') {
@@ -16,5 +14,5 @@ export async function requireUser(redirectTo = '/auth') {
 }
 
 export async function signOut() {
-  await supabase.auth.signOut();
+  await firebaseSignOut(auth);
 }

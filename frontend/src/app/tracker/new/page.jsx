@@ -22,7 +22,7 @@ function NewEntryContent({ user }) {
   useEffect(() => {
     let mounted = true;
     async function loadHackathons() {
-      const { data } = await supabase.from('hackathons').select('id,title').order('reg_end_date', { ascending: true });
+      const { data } = await supabase.from('hackathons').select('id,title,reg_end_date').order('reg_end_date', { ascending: true });
       if (mounted) {
         const rows = data || [];
         setHackathons(rows);
@@ -42,5 +42,14 @@ function NewEntryContent({ user }) {
     };
   }, [searchParams]);
 
-  return <EntryForm userId={user.uid} initialValues={prefill} hackathons={hackathons} onSaved={() => (window.location.href = '/tracker')} />;
+  return (
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
+      <div className="rounded-2xl border border-border bg-card/70 p-6 backdrop-blur-xl">
+        <h2 className="text-xl font-bold text-foreground">Build Your Tracker Entry</h2>
+        <p className="mt-2 text-sm text-foreground/70">This helps you track your hackathon journey.</p>
+      </div>
+
+      <EntryForm userId={user.uid} initialValues={prefill} hackathons={hackathons} onSaved={() => (window.location.href = '/tracker')} />
+    </div>
+  );
 }

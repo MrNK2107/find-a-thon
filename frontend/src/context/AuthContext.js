@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 
@@ -10,15 +10,37 @@ export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [authLoading, setAuthLoading] = useState(true);
+  const hasResolvedInitialAuth = useRef(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setLoading(false);
-    });
+    let isMounted = true;
 
-    return () => unsubscribe();
+    const resolveAuth = (nextUser) => {
+      if (!isMounted) return;
+
+      setUser(nextUser ?? null);
+
+      if (!hasResolvedInitialAuth.current) {
+        hasResolvedInitialAuth.current = true;
+        setAuthLoading(false);
+      }
+    };
+
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (nextUser) => {
+        resolveAuth(nextUser);
+      },
+      () => {
+        resolveAuth(null);
+      }
+    );
+
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
   }, []);
 
   const login = (email, password) => {
@@ -30,13 +52,12 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    setUser(null);
     await signOut(auth);
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout, loading }}>
-      {!loading ? children : <div className="h-screen w-screen flex items-center justify-center bg-background text-on-surface">Loading Workspace...</div>}
+    <AuthContext.Provider value={{ user, authLoading, login, signup, logout }}>
+      {children}
     </AuthContext.Provider>
   );
 };

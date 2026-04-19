@@ -1,7 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { auth } from '@/lib/firebase';
-import { supabase } from '@/lib/supabaseClient';
 
 export default function BookmarkButton({ hackathonId }) {
   const [isSaved, setIsSaved] = useState(false);
@@ -14,13 +13,26 @@ export default function BookmarkButton({ hackathonId }) {
 
   useEffect(() => {
     if (!firebaseUser || !hackathonId) return;
-    supabase
-      .from('saved_hackathons')
-      .select('id')
-      .eq('user_id', firebaseUser.uid)
-      .eq('hackathon_id', hackathonId)
-      .maybeSingle()
-      .then(({ data }) => setIsSaved(Boolean(data)));
+    async function loadSavedState() {
+      try {
+        const token = await firebaseUser.getIdToken();
+        const res = await fetch(`/api/bookmarks?hackathonId=${encodeURIComponent(hackathonId)}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!res.ok) {
+          setIsSaved(false);
+          return;
+        }
+        const payload = await res.json();
+        setIsSaved(Boolean(payload.saved));
+      } catch {
+        setIsSaved(false);
+      }
+    }
+
+    loadSavedState();
   }, [firebaseUser, hackathonId]);
 
   async function toggleSaved(e) {
@@ -48,8 +60,8 @@ export default function BookmarkButton({ hackathonId }) {
       aria-label="Toggle bookmark"
       className={`w-8 h-8 rounded-lg border flex items-center justify-center transition-colors ${
         isSaved
-          ? 'bg-[#EEEDFE] border-[#AFA9EC] text-[#534AB7]'
-          : 'bg-white border-[#E2E3E1] text-[#9B9B98] hover:border-[#C2C6D2]'
+          ? 'bg-accent/14 border-accent/45 text-accent'
+          : 'bg-card border-border text-foreground/55 hover:border-accent/45'
       }`}
     >
       <svg width="14" height="14" viewBox="0 0 24 24" fill={isSaved ? 'currentColor' : 'none'}

@@ -28,7 +28,7 @@ function TrackerDetailContent({ user }) {
     async function loadData() {
       const [{ data: entryRow }, { data: hackathonRows }] = await Promise.all([
         supabase.from('hackathon_entries').select('*').eq('id', params.id).eq('user_id', user.uid).maybeSingle(),
-        supabase.from('hackathons').select('id,title').order('reg_end_date', { ascending: true }),
+        supabase.from('hackathons').select('id,title,reg_end_date').order('reg_end_date', { ascending: true }),
       ]);
 
       if (mounted) {
@@ -46,7 +46,7 @@ function TrackerDetailContent({ user }) {
   const reflection = useMemo(() => entry?.my_reflection || 'No reflection yet.', [entry]);
 
   if (!entry) {
-    return <p className="text-sm text-slate-500">Entry not found.</p>;
+    return <p className="text-sm text-foreground/65">Entry not found.</p>;
   }
 
   if (editMode) {
@@ -61,22 +61,22 @@ function TrackerDetailContent({ user }) {
   }
 
   return (
-    <div className="bg-white border border-slate-200 rounded-xl p-5 space-y-4">
+    <div className="space-y-4 rounded-xl border border-border bg-card p-5 transition-colors duration-300">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-slate-900">{entry.project_name}</h2>
-        <a href={`?edit=1`} className="text-sm text-[#185FA5]">Edit Entry</a>
+        <h2 className="text-xl font-semibold text-foreground">{entry.project_name}</h2>
+        <a href={`?edit=1`} className="text-sm text-accent">Edit Entry</a>
       </div>
 
-      <p className="text-sm text-slate-500">{entry.hackathon_title || 'Unknown hackathon'}</p>
+      <p className="text-sm text-foreground/65">{entry.hackathon_title || 'Unknown hackathon'}</p>
       <div className="flex gap-2">
         <StatusBadge value={entry.status} />
         {entry.result ? <StatusBadge value={entry.result} type="result" /> : null}
       </div>
 
-      <p className="text-sm text-slate-700">{entry.project_description || 'No project description provided.'}</p>
-      <p className="text-sm text-slate-700">{reflection}</p>
+      <p className="text-sm text-foreground/80">{entry.project_description || 'No project description provided.'}</p>
+      <p className="text-sm text-foreground/80">{reflection}</p>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-slate-600">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-foreground/70">
         <p>Repo: {entry.repo_url || 'N/A'}</p>
         <p>Demo: {entry.demo_url || 'N/A'}</p>
         <p>Team size: {entry.team_size || 1}</p>

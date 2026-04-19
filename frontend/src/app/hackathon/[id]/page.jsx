@@ -5,22 +5,24 @@ import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'next/navigation';
 import BookmarkButton from '@/components/BookmarkButton';
 import { supabase } from '@/lib/supabaseClient';
+import { useAuth } from '@/context/AuthContext';
 
 export default function HackathonDetailPage() {
   const params = useParams();
+  const { user } = useAuth();
   const [hackathon, setHackathon] = useState(null);
-  const [user, setUser] = useState(null);
 
   useEffect(() => {
     let mounted = true;
     async function loadData() {
-      const [{ data: hackathonRow }, { data: userData }] = await Promise.all([
-        supabase.from('hackathons').select('*').eq('id', params.id).maybeSingle(),
-        supabase.auth.getUser(),
-      ]);
+      const { data: hackathonRow } = await supabase
+        .from('hackathons')
+        .select('*')
+        .eq('id', params.id)
+        .maybeSingle();
+
       if (mounted) {
         setHackathon(hackathonRow || null);
-        setUser(userData?.user || null);
       }
     }
     loadData();
@@ -35,18 +37,18 @@ export default function HackathonDetailPage() {
   }, [hackathon?.reg_end_date]);
 
   if (!hackathon) {
-    return <div className="min-h-screen bg-slate-100 p-6">Hackathon not found.</div>;
+    return <div className="min-h-screen bg-background p-6 text-foreground">Hackathon not found.</div>;
   }
 
   async function markApplied() {
-    if (!user?.id) {
+    if (!user?.uid) {
       window.location.href = '/auth';
       return;
     }
 
     await supabase.from('hackathon_entries').upsert(
       {
-        user_id: user.id,
+        user_id: user.uid,
         hackathon_id: hackathon.id,
         hackathon_title: hackathon.title,
         status: 'applied',
@@ -62,26 +64,26 @@ export default function HackathonDetailPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-100 p-4 md:p-8">
-      <article className="max-w-4xl mx-auto bg-white border border-slate-200 rounded-xl p-6 space-y-4">
+    <main className="min-h-screen bg-background p-4 text-foreground transition-colors duration-300 md:p-8">
+      <article className="mx-auto max-w-4xl space-y-4 rounded-xl border border-border bg-card p-6">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-semibold text-slate-900">{hackathon.title}</h1>
-            <p className="text-sm text-slate-500">{hackathon.organizer || 'Unknown organizer'}</p>
+            <h1 className="text-2xl font-semibold text-foreground">{hackathon.title}</h1>
+            <p className="text-sm text-foreground/65">{hackathon.organizer || 'Unknown organizer'}</p>
           </div>
           <BookmarkButton hackathonId={hackathon.id} />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm text-slate-700">
-          <p><span className="text-slate-500">Mode:</span> {hackathon.mode || 'Online'}</p>
-          <p><span className="text-slate-500">Location:</span> {hackathon.location || 'Remote'}</p>
-          <p><span className="text-slate-500">Deadline:</span> {formattedDate}</p>
-          <p><span className="text-slate-500">Source:</span> {hackathon.source || 'N/A'}</p>
-          <p><span className="text-slate-500">Prize:</span> {hackathon.prize || 'N/A'}</p>
-          <p><span className="text-slate-500">Status:</span> {hackathon.is_closed ? 'Closed' : 'Live'}</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm text-foreground/80">
+          <p><span className="text-foreground/60">Mode:</span> {hackathon.mode || 'Online'}</p>
+          <p><span className="text-foreground/60">Location:</span> {hackathon.location || 'Remote'}</p>
+          <p><span className="text-foreground/60">Deadline:</span> {formattedDate}</p>
+          <p><span className="text-foreground/60">Source:</span> {hackathon.source || 'N/A'}</p>
+          <p><span className="text-foreground/60">Prize:</span> {hackathon.prize || 'N/A'}</p>
+          <p><span className="text-foreground/60">Status:</span> {hackathon.is_closed ? 'Closed' : 'Live'}</p>
         </div>
 
-        <p className="text-slate-700">{hackathon.description || 'No description available yet.'}</p>
+        <p className="text-foreground/80">{hackathon.description || 'No description available yet.'}</p>
 
         {(hackathon.themes || []).length ? (
           <div className="flex flex-wrap gap-2">
@@ -92,10 +94,10 @@ export default function HackathonDetailPage() {
         ) : null}
 
         <div className="flex flex-wrap gap-2">
-          <button onClick={markApplied} className="rounded-lg bg-[#185FA5] text-white px-4 py-2 text-sm font-medium">Apply Now</button>
-          <Link href={`/team?hackathon=${encodeURIComponent(hackathon.title)}`} className="rounded-lg border border-slate-300 px-4 py-2 text-sm">Find teammates</Link>
-          <Link href={`/tracker/new?hackathonId=${hackathon.id}`} className="rounded-lg border border-slate-300 px-4 py-2 text-sm">Log this entry</Link>
-          <a href={hackathon.link} target="_blank" rel="noopener noreferrer" className="rounded-lg border border-slate-300 px-4 py-2 text-sm">Open source page</a>
+          <button onClick={markApplied} className="rounded-lg bg-accent text-white px-4 py-2 text-sm font-medium hover:opacity-90 transition-opacity">Apply Now</button>
+          <Link href={`/team?hackathon=${encodeURIComponent(hackathon.title)}`} className="rounded-lg border border-border px-4 py-2 text-sm hover:bg-muted/45">Find teammates</Link>
+          <Link href={`/tracker/new?hackathonId=${hackathon.id}`} className="rounded-lg border border-border px-4 py-2 text-sm hover:bg-muted/45">Log this entry</Link>
+          <a href={hackathon.link} target="_blank" rel="noopener noreferrer" className="rounded-lg border border-border px-4 py-2 text-sm hover:bg-muted/45">Open source page</a>
         </div>
       </article>
     </main>

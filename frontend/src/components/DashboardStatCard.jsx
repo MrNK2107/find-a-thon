@@ -7,30 +7,30 @@ export default function DashboardStatCard({
   footerText,
   variant = 'neutral',
   icon,
-  progress, // number 0-100 for a progress bar
+  progress,
 }) {
   const getColors = () => {
     switch (variant) {
       case 'success':
         return {
-          text: 'text-[#3B6D11]',
-          icon: 'text-[#3B6D11]',
+          value: 'text-emerald-600',
+          icon: 'text-amber-400',
         };
       case 'primary':
         return {
-          text: 'text-[#185FA5]',
-          icon: 'text-[#185FA5]',
+          value: 'text-indigo-600',
+          icon: 'text-indigo-300',
         };
       case 'amber':
         return {
-          text: 'text-[#854F0B]',
-          icon: 'text-[#854F0B]',
+          value: 'text-amber-500',
+          icon: 'text-amber-400',
         };
       case 'neutral':
       default:
         return {
-          text: 'text-on-surface',
-          icon: 'text-secondary',
+          value: 'text-foreground',
+          icon: 'text-sky-400',
         };
     }
   };
@@ -38,37 +38,34 @@ export default function DashboardStatCard({
   const colors = getColors();
 
   return (
-    <div className="bg-surface-container-lowest border border-on-background/[0.12] rounded-xl p-[18px] flex flex-col justify-between min-h-[140px] hover:bg-surface-container-low transition-colors duration-300">
+    <div className="flex min-h-[132px] flex-col justify-between rounded-2xl border border-border bg-card/80 p-4 shadow-[0_14px_28px_rgba(89,104,151,0.08)] backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:bg-card">
       <div className="flex flex-col gap-1">
-        <span className="text-[11px] font-bold uppercase tracking-widest text-secondary">
+        <span className="text-[12px] font-extrabold uppercase tracking-[0.12em] text-foreground/60">
           {label}
         </span>
-        <div className="flex items-baseline gap-2">
-          <span className={`text-[24px] font-medium ${colors.text}`}>
+        <div className="space-y-1">
+          <span className={`block text-[42px] font-extrabold leading-none ${colors.value}`}>
             {value}
           </span>
           {subtext && (
-            <span className="text-xs text-on-surface-variant/60 font-medium">
+            <span className="text-sm font-medium text-foreground/65">
               {subtext}
             </span>
           )}
         </div>
       </div>
-      
-      <div className="flex items-center justify-between gap-2">
-        <span className="text-[11px] text-secondary">{footerText}</span>
-        
+
+      <div className="mt-2 flex items-center justify-between gap-2">
+        <span className="text-[12px] font-semibold text-foreground/65">{footerText}</span>
+
         {progress !== undefined && (
-          <div className="h-1 flex-1 bg-surface-container rounded-full overflow-hidden">
-            <div className="h-full bg-secondary-fixed-dim" style={{ width: `${progress}%` }}></div>
+          <div className="h-1.5 flex-1 overflow-hidden rounded-full border border-border bg-muted/55">
+            <div className="h-full rounded-full bg-[#7a8bf8]" style={{ width: `${progress}%` }}></div>
           </div>
         )}
 
         {icon && (
-          <span 
-            className={`material-symbols-outlined text-sm ${colors.icon}`} 
-            style={variant === 'amber' ? { fontVariationSettings: "'FILL' 1" } : {}}
-          >
+          <span className={`text-[34px] leading-none ${colors.icon}`}>
             {icon}
           </span>
         )}

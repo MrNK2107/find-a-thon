@@ -68,24 +68,53 @@ class GenericScraper(ABC):
         except Exception:
             return default
 
-    def run(self) -> list[HackathonItem]:
+    def _log_selector_drift(self, page: Page, reason: str):
+        """Log lightweight diagnostics when selectors likely drifted."""
+        try:
+            title = page.title()
+        except Exception:
+            title = "<unavailable>"
+
+        try:
+            html_snippet = (page.content() or "").replace("\n", " ").strip()[:500]
+        except Exception:
+            html_snippet = "<unavailable>"
+
+        self.logger.warning(f"{reason} | title={title!r} | html_head={html_snippet!r}")
+
+    def run(self, shared_pw=None, shared_browser=None, shared_context=None, shared_page=None) -> list[HackathonItem]:
         self.logger.info(f"Starting {self.platform_name} scraper")
         self._captured_responses.clear()
-        pw = sync_playwright().start()
+        
+        pw_instance = shared_pw
+        browser = shared_browser
+        context = shared_context
+        page = shared_page
+        
+        manage_pw = False
+        manage_context = False
+        
+        if not pw_instance and not page:
+            manage_pw = True
+            pw_instance = sync_playwright().start()
+            
+        if not page:
+            manage_context = True
+            browser, context, page = self._create_context(pw_instance)
+            
         try:
-            browser, context, page = self._create_context(pw)
-            try:
-                results = self.scrape(page, context)
-                self.logger.info(f"{self.platform_name}: scraped {len(results)} items")
-                return results
-            finally:
-                context.close()
-                browser.close()
+            results = self.scrape(page, context)
+            self.logger.info(f"{self.platform_name}: scraped {len(results)} items")
+            return results
         except Exception as e:
-            self.logger.error(f"{self.platform_name} failed: {e}")
+            self.logger.exception(f"{self.platform_name} failed: {e}")
             return []
         finally:
-            pw.stop()
+            if manage_context:
+                context.close()
+                browser.close()
+            if manage_pw:
+                pw_instance.stop()
 
     @abstractmethod
     def scrape(self, page: Page, context: BrowserContext) -> list[HackathonItem]:

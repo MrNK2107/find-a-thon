@@ -43,17 +43,17 @@ export default function TeamListingForm({ userId, onCreated }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white border border-slate-200 rounded-xl p-4 space-y-3">
-      <h2 className="font-semibold text-slate-900">Post a listing</h2>
-      <input placeholder="Hackathon title" value={form.hackathon_title} onChange={(e) => updateField('hackathon_title', e.target.value)} className="w-full rounded-lg border border-slate-300 px-3 py-2" />
-      <input placeholder="Skills needed (comma-separated)" value={form.looking_for_skills} onChange={(e) => updateField('looking_for_skills', e.target.value)} className="w-full rounded-lg border border-slate-300 px-3 py-2" />
+    <form onSubmit={handleSubmit} className="space-y-3 rounded-xl border border-border bg-card p-4">
+      <h2 className="font-semibold text-foreground">Post a listing</h2>
+      <input placeholder="Hackathon title" value={form.hackathon_title} onChange={(e) => updateField('hackathon_title', e.target.value)} className="w-full rounded-lg border border-border bg-card px-3 py-2 text-foreground" />
+      <input placeholder="Skills needed (comma-separated)" value={form.looking_for_skills} onChange={(e) => updateField('looking_for_skills', e.target.value)} className="w-full rounded-lg border border-border bg-card px-3 py-2 text-foreground" />
       <div className="grid grid-cols-2 gap-3">
-        <input type="number" min="1" value={form.team_size_current} onChange={(e) => updateField('team_size_current', e.target.value)} className="rounded-lg border border-slate-300 px-3 py-2" />
-        <input type="number" min="1" value={form.team_size_max} onChange={(e) => updateField('team_size_max', e.target.value)} className="rounded-lg border border-slate-300 px-3 py-2" />
+        <input type="number" min="1" value={form.team_size_current} onChange={(e) => updateField('team_size_current', e.target.value)} className="rounded-lg border border-border bg-card px-3 py-2 text-foreground" />
+        <input type="number" min="1" value={form.team_size_max} onChange={(e) => updateField('team_size_max', e.target.value)} className="rounded-lg border border-border bg-card px-3 py-2 text-foreground" />
       </div>
-      <textarea placeholder="Describe your team and project idea" value={form.description} onChange={(e) => updateField('description', e.target.value)} className="w-full rounded-lg border border-slate-300 px-3 py-2" />
-      <input placeholder="Contact method (Discord/email/WhatsApp)" value={form.contact_method} onChange={(e) => updateField('contact_method', e.target.value)} className="w-full rounded-lg border border-slate-300 px-3 py-2" />
-      <button type="submit" className="rounded-lg bg-[#185FA5] text-white px-4 py-2">Create listing</button>
+      <textarea placeholder="Describe your team and project idea" value={form.description} onChange={(e) => updateField('description', e.target.value)} className="w-full rounded-lg border border-border bg-card px-3 py-2 text-foreground" />
+      <input placeholder="Contact method (Discord/email/WhatsApp)" value={form.contact_method} onChange={(e) => updateField('contact_method', e.target.value)} className="w-full rounded-lg border border-border bg-card px-3 py-2 text-foreground" />
+      <button type="submit" className="rounded-lg bg-accent px-4 py-2 text-white hover:opacity-90 transition-opacity">Create listing</button>
     </form>
   );
 }

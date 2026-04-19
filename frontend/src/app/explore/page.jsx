@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import Navbar from '@/components/Navbar';
 import HackathonList from '@/components/HackathonList';
 import FilterBar from '@/components/FilterBar';
+import ExploreHeader from '@/components/ExploreHeader';
 import { supabase } from '@/lib/supabaseClient';
 
 export const dynamic = 'force-dynamic';
@@ -11,7 +12,7 @@ export const dynamic = 'force-dynamic';
 export default function ExplorePage() {
   const [hackathons, setHackathons] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeFilter, setActiveFilter] = useState('All');
+  const [filters, setFilters] = useState({ modes: [], platforms: [], closingSoon: false, sort: 'deadline' });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -47,11 +48,11 @@ export default function ExplorePage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="text-center p-8 max-w-md bg-red-50 rounded-2xl shadow-sm border border-red-200">
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="max-w-md rounded-2xl border border-red-300/40 bg-red-500/8 p-8 text-center shadow-sm">
           <h2 className="text-xl font-bold text-red-800 mb-2">Connection Error</h2>
           <p className="text-red-600 mb-4">Failed to load hackathon data.</p>
-          <code className="block p-3 bg-white/50 rounded-lg text-xs text-red-700 font-mono break-all border border-red-200">
+          <code className="block rounded-lg border border-red-300/40 bg-card/60 p-3 text-xs font-mono break-all text-red-700">
             {error}
           </code>
         </div>
@@ -70,60 +71,36 @@ export default function ExplorePage() {
     return daysLeft <= 7 && daysLeft >= 0;
   }).length;
   
-  // Count distinct sources dynamically could be done, but instruction says "7 sources"
-  const SOURCES = "7";
+  const sourceCount = new Set(hackathons.map((h) => (h.source || '').toLowerCase()).filter(Boolean)).size;
 
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen pt-24 pb-12">
       <Navbar
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         hackathonCount={liveCount}
       />
-      
-      {/* HERO */}
-      <section className="bg-white border-b border-[#E2E3E1] pt-12 pb-8 px-8 mt-14">
-        <div className="max-w-6xl mx-auto">
-          <h1 className="text-[28px] font-bold tracking-tight text-[#1a1c1b]">
-            Discover hackathons worth your time
-          </h1>
-          <p className="text-[14px] text-[#5f5e5a] mt-1">
-            Scraped fresh from Devpost, Devfolio, Unstop, HackerEarth and more.
-          </p>
+      <div className="max-w-7xl mx-auto px-6 w-full flex flex-col gap-8">
+        <ExploreHeader
+          liveCount={liveCount}
+          closingCount={closingCount}
+          sourceCount={sourceCount}
+        />
 
-          <div className="mt-5 flex gap-6 flex-wrap items-center">
-            <div className="flex items-center gap-1.5">
-              <span className="text-[#185FA5] font-bold">{liveCount}</span>
-              <span className="text-[#5f5e5a] text-[13px]">open now</span>
-            </div>
-            <span className="text-[#E2E3E1]">·</span>
-            <div className="flex items-center gap-1.5">
-              <span className="text-[#185FA5] font-bold">{closingCount}</span>
-              <span className="text-[#5f5e5a] text-[13px]">closing this week</span>
-            </div>
-            <span className="text-[#E2E3E1]">·</span>
-            <div className="flex items-center gap-1.5">
-              <span className="text-[#185FA5] font-bold">{SOURCES}</span>
-              <span className="text-[#5f5e5a] text-[13px]">sources</span>
-            </div>
-            <span className="text-[#E2E3E1]">·</span>
-            <div className="flex items-center gap-1.5">
-              <span className="text-[#5f5e5a] text-[13px]">Updated daily</span>
-            </div>
-          </div>
-        </div>
-      </section>
+        <section>
+          <FilterBar filters={filters} onFilterChange={setFilters} count={hackathons.length} />
+        </section>
 
-      {/* FILTER BAR */}
-      <div className="sticky top-14 z-40 bg-white border-b border-[#E2E3E1] px-8 py-3">
-        <div className="max-w-6xl mx-auto">
-          {/* HackathonList will handle the actual count being rendered later, but it expects FilterBar state inside HackathonList, or passed down */}
-          {/* Wait, the FilterBar requires count, which comes from HackathonList which does the filtering. We will pull the filtering logic here or put FilterBar IN HackathonList, but instructions say to rebuild FilterBar and that explore page embeds it... Actually HackathonList embeds it! The prompt instructed to completely redesign HackathonList and explore. It seems HackathonList is where FilterBar is rendered. So I will move FilterBar rendering OUT of here or just pass the activeFilter to HackathonList. I'll just put HackathonList here. */}
-        </div>
-      </div>
-
-      <div className="max-w-6xl mx-auto px-8 w-full">
-         <HackathonList initialHackathons={hackathons} searchQuery={searchQuery} showBookmark loading={loading} />
+        <section>
+        <HackathonList
+          hackathons={hackathons}
+          searchQuery={searchQuery}
+          showBookmark
+          loading={loading}
+          filters={filters}
+          onClearFilters={() => setFilters({ modes: [], platforms: [], closingSoon: false, sort: 'deadline' })}
+        />
+        </section>
       </div>
 
     </main>

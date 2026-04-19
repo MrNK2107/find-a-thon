@@ -1,4 +1,5 @@
 import re
+import asyncio
 import dateparser
 from playwright.sync_api import Page, BrowserContext
 from base_scraper import GenericScraper
@@ -8,7 +9,7 @@ from utils import extract_reg_end_date_from_text, search_date_on_web
 
 class KnowafestScraper(GenericScraper):
     platform_name = "Knowafest"
-    TARGET_URL = "https://www.knowafest.com/college-fests/city/chennai"
+    TARGET_URL = "https://www.knowafest.com/explore/events?category=hackathons"
     HACKATHON_KEYWORDS = ["hackathon", "hack", "code", "coding", "tech", "programming", "software", "ai", "ml", "data"]
 
     def scrape(self, page: Page, context: BrowserContext) -> list[HackathonItem]:
@@ -16,7 +17,7 @@ class KnowafestScraper(GenericScraper):
         page.wait_for_timeout(3000)
 
         items = []
-        event_links = page.query_selector_all("a[href*='/college-fests/events/']")
+        event_links = page.query_selector_all("a[href*='/college-fests/events/'], a[href*='hackathon']")
         seen = set()
 
         for anchor in event_links:
@@ -65,7 +66,13 @@ class KnowafestScraper(GenericScraper):
                     date_val = search_date_on_web(item.title)
 
                 organizer = self._extract_organizer(detail_page)
-                location = self._extract_location(body_text) or "Chennai"
+                location = self._extract_location(body_text) or ""
+                normalized_location = location.lower()
+                if location and ("chennai" not in normalized_location and "tamil nadu" not in normalized_location and "tamilnadu" not in normalized_location):
+                    detail_page.close()
+                    continue
+                if not location:
+                    location = "Chennai, Tamil Nadu"
                 themes = [kw.upper() for kw in ["ai", "ml", "data", "web", "iot", "cloud"] if kw in lower_body]
                 is_closed = any(word in lower_body for word in ["registration closed", "event ended", "completed"])
                 description = body_text.strip()[:320] if body_text else None
@@ -111,9 +118,30 @@ class KnowafestScraper(GenericScraper):
         return ""
 
     def _extract_location(self, body_text: str) -> str:
-        location_keywords = ["chennai", "thandalam", "kattankulathur", "guindy", "vadapalani", "tambaram"]
+        location_keywords = [
+            "chennai",
+            "tamil nadu",
+            "thandalam",
+            "kattankulathur",
+            "guindy",
+            "vadapalani",
+            "tambaram",
+            "sriperumbudur",
+        ]
         lower = body_text.lower()
         for kw in location_keywords:
             if kw in lower:
                 return kw.title()
         return ""
+
+
+async def test_scraper():
+    scraper = KnowafestScraper()
+    items = await asyncio.to_thread(scraper.run)
+    print(f"[Knowafest] scraped {len(items)} items")
+    for idx, item in enumerate(items[:3], start=1):
+        print(f"{idx}. {item.title} | {item.date} | {item.link}")
+
+
+if __name__ == "__main__":
+    asyncio.run(test_scraper())

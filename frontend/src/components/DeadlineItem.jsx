@@ -26,10 +26,10 @@ export default function DeadlineItem({ hackathon, userId, reminder }) {
   }
 
   return (
-    <article className="bg-white border border-slate-200 rounded-xl p-4 flex items-center justify-between gap-3">
+    <article className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-4">
       <div>
-        <h3 className="font-semibold text-slate-900">{hackathon.title}</h3>
-        <p className="text-sm text-slate-500">
+        <h3 className="font-semibold text-foreground">{hackathon.title}</h3>
+        <p className="text-sm text-foreground/65">
           Deadline: {hackathon.reg_end_date ? new Date(hackathon.reg_end_date).toLocaleDateString() : 'TBA'}
         </p>
       </div>
@@ -38,7 +38,7 @@ export default function DeadlineItem({ hackathon, userId, reminder }) {
         <span className={`rounded-full px-2 py-1 text-xs font-medium ${getUrgencyClass(hackathon.reg_end_date)}`}>
           Urgency
         </span>
-        <button type="button" onClick={toggleReminder} className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm">
+        <button type="button" onClick={toggleReminder} className="rounded-lg border border-border px-3 py-1.5 text-sm text-foreground/80 hover:bg-muted/45">
           {reminder?.is_active ? 'Disable reminder' : 'Remind me'}
         </button>
       </div>

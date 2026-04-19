@@ -54,3 +54,5 @@ frontend/pnpm-debug.log*
 
 # Firebase Admin credentials
 my-hackathon-finder-firebase-adminsdk-fbsvc-*.json
+
+skills/

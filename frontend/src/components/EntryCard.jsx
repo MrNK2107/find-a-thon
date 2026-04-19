@@ -5,12 +5,12 @@ export default function EntryCard({ entry }) {
   return (
     <Link
       href={`/tracker/${entry.id}`}
-      className="block bg-white border border-slate-200 rounded-xl p-4 hover:shadow-sm transition-shadow"
+      className="block rounded-xl border border-border bg-card p-4 transition-shadow hover:shadow-sm"
     >
       <div className="flex items-start justify-between gap-2">
         <div>
-          <h3 className="font-semibold text-slate-900">{entry.project_name || 'Untitled project'}</h3>
-          <p className="text-sm text-slate-500">{entry.hackathon_title || 'Unknown hackathon'}</p>
+          <h3 className="font-semibold text-foreground">{entry.project_name || 'Untitled project'}</h3>
+          <p className="text-sm text-foreground/65">{entry.hackathon_title || 'Unknown hackathon'}</p>
         </div>
         <StatusBadge value={entry.status} />
       </div>
@@ -27,7 +27,7 @@ export default function EntryCard({ entry }) {
         {entry.my_reflection || 'No reflection added yet.'}
       </div>
 
-      <div className="mt-3 flex items-center gap-2 text-xs text-slate-500">
+      <div className="mt-3 flex items-center gap-2 text-xs text-foreground/65">
         <span>Team size: {entry.team_size || 1}</span>
         {entry.result ? <StatusBadge value={entry.result} type="result" /> : null}
       </div>

@@ -24,10 +24,23 @@ function TeamContent({ user }) {
   const [availableSpotsFilter, setAvailableSpotsFilter] = useState('all');
 
   async function loadData() {
-    const [{ data: listingRows }, { data: profileRows }] = await Promise.all([
+    const [{ data: listingRows }, profileResult] = await Promise.all([
       supabase.from('team_listings').select('*').eq('is_open', true).order('created_at', { ascending: false }),
       supabase.from('profiles').select('id,name,skills,experience_level'),
     ]);
+
+    let profileRows = profileResult?.data || [];
+    if (profileResult?.error) {
+      const fallbackProfiles = await supabase.from('profiles').select('user_id,name,skills,experience_level');
+      if (!fallbackProfiles.error) {
+        profileRows = (fallbackProfiles.data || []).map((row) => ({
+          id: row.user_id,
+          name: row.name,
+          skills: row.skills,
+          experience_level: row.experience_level,
+        }));
+      }
+    }
 
     setListings(listingRows || []);
     setProfiles(profileRows || []);
@@ -55,9 +68,9 @@ function TeamContent({ user }) {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-        <input value={skillFilter} onChange={(event) => setSkillFilter(event.target.value)} placeholder="Filter by skill" className="rounded-lg border border-slate-300 px-3 py-2" />
-        <input value={hackathonFilter} onChange={(event) => setHackathonFilter(event.target.value)} placeholder="Filter by hackathon" className="rounded-lg border border-slate-300 px-3 py-2" />
-        <select value={availableSpotsFilter} onChange={(event) => setAvailableSpotsFilter(event.target.value)} className="rounded-lg border border-slate-300 px-3 py-2">
+        <input value={skillFilter} onChange={(event) => setSkillFilter(event.target.value)} placeholder="Filter by skill" className="rounded-lg border border-border bg-card px-3 py-2 text-foreground" />
+        <input value={hackathonFilter} onChange={(event) => setHackathonFilter(event.target.value)} placeholder="Filter by hackathon" className="rounded-lg border border-border bg-card px-3 py-2 text-foreground" />
+        <select value={availableSpotsFilter} onChange={(event) => setAvailableSpotsFilter(event.target.value)} className="rounded-lg border border-border bg-card px-3 py-2 text-foreground">
           <option value="all">All availability</option>
           <option value="1+">At least 1 spot</option>
           <option value="2+">At least 2 spots</option>
@@ -67,7 +80,7 @@ function TeamContent({ user }) {
       <TeamListingForm userId={user.uid} onCreated={loadData} />
 
       <section>
-        <h2 className="text-lg font-semibold text-slate-900 mb-3">Open listings</h2>
+        <h2 className="mb-3 text-lg font-semibold text-foreground">Open listings</h2>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {filteredListings.map((listing) => (
             <TeamListingCard
@@ -90,11 +103,11 @@ function TeamContent({ user }) {
       </section>
 
       <section>
-        <h2 className="text-lg font-semibold text-slate-900 mb-3">My listings</h2>
+        <h2 className="mb-3 text-lg font-semibold text-foreground">My listings</h2>
         <div className="space-y-3">
           {myListings.map((listing) => (
-            <div key={listing.id} className="bg-white border border-slate-200 rounded-xl p-3 flex items-center justify-between">
-              <p className="text-sm text-slate-700">{listing.hackathon_title || 'General listing'}</p>
+            <div key={listing.id} className="flex items-center justify-between rounded-xl border border-border bg-card p-3">
+              <p className="text-sm text-foreground/80">{listing.hackathon_title || 'General listing'}</p>
               <button
                 onClick={async () => {
                   await supabase.from('team_listings').update({ is_open: false }).eq('id', listing.id).eq('user_id', user.uid);
@@ -106,7 +119,7 @@ function TeamContent({ user }) {
               </button>
             </div>
           ))}
-          {!myListings.length ? <p className="text-sm text-slate-500">You have no active listings.</p> : null}
+          {!myListings.length ? <p className="text-sm text-foreground/65">You have no active listings.</p> : null}
         </div>
       </section>
     </div>

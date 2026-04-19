@@ -36,7 +36,7 @@ export default function DeadlineTrackerItem({
   const styles = getStyles();
 
   return (
-    <div className="flex items-center px-6 md:px-10 py-5 bg-white hover:bg-surface-container-lowest transition-colors border-b border-[#c2c6d2]/40 group">
+    <div className="group flex items-center border-b border-border/60 bg-card px-6 py-5 transition-colors hover:bg-muted/35 md:px-10">
       {/* Urgency Dot */}
       <div className="w-8 flex justify-center">
         <div className={`w-2 h-2 rounded-full ${styles.dotBg} ${styles.dotShadow}`}></div>
@@ -45,9 +45,9 @@ export default function DeadlineTrackerItem({
       {/* Main Info */}
       <div className="flex flex-col ml-4 flex-1">
         <div className="flex items-center gap-2">
-          <span className="text-[13px] font-medium text-on-surface truncate">{hackathonName}</span>
+          <span className="truncate text-[13px] font-medium text-foreground">{hackathonName}</span>
           {source && (
-            <span className="hidden sm:inline-block text-[10px] font-medium px-1.5 py-0.5 rounded bg-surface-container-high text-secondary">
+            <span className="hidden rounded bg-muted/70 px-1.5 py-0.5 text-[10px] font-medium text-foreground/70 sm:inline-block">
               {source}
             </span>
           )}
@@ -57,17 +57,17 @@ export default function DeadlineTrackerItem({
       {/* Deadline Info & Actions */}
       <div className="flex items-center gap-4 md:gap-6">
         <div className="text-right flex flex-col sm:flex-row sm:items-center sm:gap-1.5">
-          <span className="text-[13px] font-medium text-on-surface">{deadlineDate}</span>
+          <span className="text-[13px] font-medium text-foreground">{deadlineDate}</span>
           <span className={`text-[12px] sm:text-[13px] font-semibold ${styles.timeText}`}>
             ({deadlineTimeText})
           </span>
         </div>
         <button 
           onClick={onBookmarkClick}
-          className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors"
+          className="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-muted/65"
         >
           <span 
-            className={`material-symbols-outlined text-[20px] ${isBookmarked ? 'text-primary' : 'text-outline'}`}
+            className={`material-symbols-outlined text-[20px] ${isBookmarked ? 'text-accent' : 'text-foreground/45'}`}
             style={isBookmarked ? { fontVariationSettings: "'FILL' 1" } : {}}
           >
             bookmark

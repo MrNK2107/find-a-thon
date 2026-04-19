@@ -36,7 +36,7 @@ function TrackerContent({ user }) {
   return (
     <section className="space-y-4">
       <div className="flex justify-end">
-        <Link href="/tracker/new" className="rounded-lg bg-[#185FA5] text-white px-4 py-2 text-sm font-medium">Add Entry</Link>
+        <Link href="/tracker/new" className="rounded-lg bg-accent text-white px-4 py-2 text-sm font-medium hover:opacity-90 transition-opacity">Add Entry</Link>
       </div>
       <div className="space-y-4">
         {entries.map((entry) => (
@@ -54,7 +54,7 @@ function TrackerContent({ user }) {
           />
         ))}
       </div>
-      {!entries.length ? <p className="text-sm text-slate-500">No entries yet. Add your first hackathon entry.</p> : null}
+      {!entries.length ? <p className="text-sm text-foreground/65">No entries yet. Add your first hackathon entry.</p> : null}
     </section>
   );
 }

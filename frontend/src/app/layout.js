@@ -15,8 +15,15 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${inter.variable}`}>
-      <body className="font-sans antialiased min-h-screen flex flex-col">
+    <html lang="en" suppressHydrationWarning className={`${inter.variable}`}>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(() => { try { const key = 'findathon-theme'; const stored = localStorage.getItem(key); const theme = stored === 'light' || stored === 'dark' ? stored : 'dark'; const root = document.documentElement; root.classList.toggle('dark', theme === 'dark'); root.style.colorScheme = theme; } catch (e) {} })();`,
+          }}
+        />
+      </head>
+      <body className="font-sans antialiased min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300">
         <Providers>
           {children}
         </Providers>

@@ -1,31 +1,47 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
+import WorkspaceLoader from '@/components/WorkspaceLoader';
 
-export default function ProtectedPage({ title, children }) {
-  const { user } = useAuth();
+export default function ProtectedPage({ title, children, hideDefaultHeader = false }) {
+  const { user, authLoading } = useAuth();
   const router = useRouter();
+  const hasRedirectedRef = useRef(false);
 
   useEffect(() => {
-    if (!user) {
-      router.push('/auth');
+    if (authLoading || user) {
+      hasRedirectedRef.current = false;
+      return;
     }
-  }, [user, router]);
+
+    if (!hasRedirectedRef.current) {
+      hasRedirectedRef.current = true;
+      router.replace('/auth');
+    }
+  }, [authLoading, user, router]);
+
+  if (authLoading) {
+    return <WorkspaceLoader />;
+  }
 
   if (!user) {
-    return null; // Don't render protected content while redirecting
+    return <WorkspaceLoader />;
   }
 
   return (
     <Sidebar>
-      <header className="mb-6">
-        <h1 className="text-2xl font-semibold text-slate-900">{title}</h1>
-        <p className="text-sm text-slate-500">Signed in as {user.email}</p>
-      </header>
-      {children(user)}
+      {!hideDefaultHeader ? (
+        <header className="relative z-10 mb-6 rounded-2xl border border-border bg-card/70 p-6 backdrop-blur-xl transition-colors duration-300">
+          <h1 className="bg-gradient-to-r from-accent to-cyan-400 bg-clip-text text-3xl font-bold text-transparent drop-shadow-sm">{title}</h1>
+          <p className="mt-2 text-sm font-medium text-foreground/70">Signed in as <span className="text-accent">{user.email}</span></p>
+        </header>
+      ) : null}
+      <div className={`relative z-10 ${hideDefaultHeader ? '' : 'min-h-[60vh] rounded-2xl border border-border bg-card/70 p-6 backdrop-blur-xl transition-colors duration-300'}`}>
+        {children(user)}
+      </div>
     </Sidebar>
   );
 }

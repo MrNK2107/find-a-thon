@@ -1,0 +1,964 @@
+================================================================================
+HACKATHON HUB — COMPLETE PRODUCT SPECIFICATION PROMPT
+A Full-Stack Hackathon Discovery, Team Formation & Participation Management Platform
+================================================================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 1: PRODUCT VISION & OVERVIEW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Build a comprehensive, full-stack web platform called "Find-a-Thon" (or any creative
+name you choose) that serves as the ultimate all-in-one companion for hackathon
+enthusiasts. The platform aggregates hackathon listings from multiple sources across
+the internet and pairs that discovery layer with a powerful personal participation
+management system, team formation tools, idea vaults, post-mortem tracking, and
+community features.
+
+The target user is anyone who participates in hackathons — students, indie
+developers, startup founders, designers, and domain experts — who currently
+struggle with: finding hackathons scattered across the internet, forming teams with
+strangers, keeping track of which hackathons they've done, storing and iterating on
+ideas, and learning from wins and losses. This platform solves all of that in one
+cohesive product.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 2: TECH STACK RECOMMENDATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Frontend:
+  - Next.js 14+ (App Router) with TypeScript
+  - Tailwind CSS for styling
+  - shadcn/ui as the base component library
+  - Framer Motion for animations
+  - React Query (TanStack Query) for data fetching and caching
+  - Zustand for global state management
+  - React Hook Form + Zod for form validation
+
+Backend:
+  - Node.js with Express or Next.js API routes (choose one and be consistent)
+  - PostgreSQL as the primary relational database
+  - Prisma as the ORM
+  - Redis for caching scraped hackathon data (to avoid re-scraping constantly)
+  - BullMQ for background job queues (scraping, notifications)
+
+Scraping Layer:
+  - Puppeteer or Playwright for JavaScript-rendered pages
+  - Cheerio for static HTML parsing
+  - A dedicated scraper microservice that runs on a schedule (cron jobs)
+  - Proxy rotation support to avoid IP bans
+
+Authentication:
+  - NextAuth.js (Auth.js) supporting:
+      - Email/password with email verification
+      - GitHub OAuth
+      - Google OAuth
+      - LinkedIn OAuth (important for professional networking)
+
+Storage:
+  - Cloudinary or AWS S3 for project screenshots, team avatars, and idea attachments
+
+Notifications:
+  - Resend or SendGrid for transactional emails
+  - Web Push notifications via the Push API
+  - Optional: Telegram bot integration for hackathon deadline alerts
+
+Deployment:
+  - Vercel for the Next.js frontend
+  - Railway or Render for the backend and database
+  - Upstash for managed Redis
+  - GitHub Actions for CI/CD
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 3: SCRAPING ENGINE — HACKATHON AGGREGATOR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+This is the core differentiator. The platform must scrape and normalize hackathon
+listings from multiple sources into a single unified schema.
+
+Sources to scrape (build scrapers for each):
+  1. Devpost (devpost.com/hackathons)
+  2. Devfolio (devfolio.co)
+  3. HackerEarth (hackerearth.com/challenges/hackathon)
+  4. Unstop (unstop.com)
+  5. MLH (mlh.io/seasons)
+  6. Hackathon.com
+  7. Eventbrite (filtered to hackathon category)
+  8. Kaggle (for data science competitions)
+  9. DoraHacks (dorahacks.io)
+  10. ChallengePost
+  11. LabLabAI (lablab.ai)
+  12. Any university-specific hackathon listing pages
+
+Unified Hackathon Data Schema (every hackathon normalized to this):
+  - id (internal UUID)
+  - source (which platform it came from)
+  - source_url (original listing URL)
+  - title
+  - slug (for SEO-friendly URLs)
+  - description (full text)
+  - short_description (truncated to 200 chars)
+  - organizer_name
+  - organizer_logo_url
+  - banner_image_url
+  - mode (online | in-person | hybrid)
+  - location (city, country — null if online)
+  - start_date
+  - end_date
+  - registration_deadline
+  - team_size_min
+  - team_size_max
+  - solo_allowed (boolean)
+  - themes (array: AI, Web3, Healthcare, Sustainability, Gaming, etc.)
+  - tracks (array of specific challenge tracks)
+  - prizes (array of {rank, amount, currency, description})
+  - total_prize_pool (computed number)
+  - eligibility (Open to All | Students Only | Professionals | By Invite | Regional)
+  - eligible_countries (array — null means worldwide)
+  - skills_needed (array: Python, React, Design, etc.)
+  - registration_link
+  - is_free (boolean)
+  - registration_fee (number — 0 if free)
+  - status (upcoming | ongoing | ended | results_announced)
+  - participant_count (if available)
+  - project_count (if available)
+  - tags (auto-generated from description using NLP or keyword matching)
+  - scraped_at (timestamp)
+  - last_verified_at (timestamp)
+  - is_featured (boolean — manually curated)
+
+Scraping Architecture:
+  - Each source has its own dedicated scraper module with a standardized interface
+  - Scrapers run on a schedule: full re-scrape every 6 hours, quick update every hour
+  - Before storing, each scrape result is diff-checked against the existing record
+    to only update fields that actually changed
+  - A dead-link checker runs daily to mark hackathons whose source_url returns 404
+  - Scraped data is cached in Redis for 30 minutes to serve fast API responses
+  - A manual "suggest a hackathon" form lets users submit listings that aren't
+    auto-scraped; these go into a moderation queue before being published
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 4: HACKATHON DISCOVERY & BROWSING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+The public-facing discovery page is the entry point for new and returning users.
+
+4.1 Search & Filtering System
+  - Full-text search bar (search by title, organizer, description, tags)
+  - Filter panel with:
+      - Status: Upcoming, Ongoing, Ended, All
+      - Mode: Online, In-Person, Hybrid
+      - Theme: multi-select checkboxes (AI/ML, Web3/Blockchain, Sustainability,
+        Healthcare, EdTech, FinTech, Gaming, Social Impact, Open Innovation)
+      - Prize Pool: range slider (0 to $1M+)
+      - Registration Fee: Free only toggle
+      - Eligibility: All, Students, Professionals
+      - Team Size: Solo-friendly toggle, max team size slider
+      - Duration: 24 hrs, 48 hrs, 72 hrs, 1 week, multi-week
+      - Location: Country/city selector (for in-person events)
+      - Skills Required: multi-select tag input
+      - Source Platform: filter by which site it was scraped from
+      - Date Range: custom date picker for start date range
+  - Sort options: Newest, Prize Pool (High to Low), Registration Deadline (Soonest),
+    Most Participants, Trending (based on bookmark/view velocity)
+  - Save filter presets so logged-in users can reuse their favorite filter combos
+  - Active filter chips displayed below the search bar with individual remove buttons
+  - Filter state persisted in URL query params (shareable URLs)
+
+4.2 Hackathon Cards
+  Each card in the listing displays:
+  - Banner image (with fallback gradient if none)
+  - Source platform badge (Devpost, Devfolio, etc.) with logo
+  - Status badge (Upcoming / Live / Ended) with color coding
+  - Title
+  - Organizer name + logo
+  - Mode badge (Online / In-person / Hybrid) with location if applicable
+  - Dates (start to end, with countdown if upcoming)
+  - Registration deadline with urgency indicator (red if < 3 days)
+  - Prize pool (formatted: $10K, $50K, etc.)
+  - Top 3 themes as colored tags
+  - Team size range
+  - Bookmark button (saved to user's list)
+  - "Interested" / "Participating" quick-action button
+
+4.3 Hackathon Detail Page
+  Full page for each hackathon at /hackathons/[slug]:
+  - Hero section with banner, title, organizer, key stats
+  - Tabbed sections:
+      Tab 1 — Overview: Full description, themes, tracks, eligibility
+      Tab 2 — Prizes: Prize breakdown per track and rank
+      Tab 3 — Schedule: Timeline of important dates
+      Tab 4 — Teams: Open team listings looking for members (from this platform's users)
+      Tab 5 — Projects: Submitted projects (if available from the source)
+      Tab 6 — Discussion: Comment thread for questions and tips
+  - Sticky sidebar with:
+      - Registration CTA linking to the original source
+      - Countdown timer
+      - Share buttons (Twitter, LinkedIn, WhatsApp, Copy Link)
+      - "Mark as Interested" / "I'm Participating" toggle
+      - Add to Google Calendar button (generates .ics file)
+  - Related hackathons section (same themes or organizer)
+
+4.4 Personalized Recommendations
+  When logged in, the homepage shows:
+  - "Recommended for You" — based on skills in profile, past participation themes,
+    bookmarked hackathon patterns
+  - "Ending Soon" — bookmarked or interested hackathons with close deadlines
+  - "New This Week" — freshly scraped listings
+  - "Popular in Your Network" — hackathons that connections are joining
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 5: USER PROFILES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+5.1 Profile Setup (onboarding wizard after signup)
+  Step 1 — Basic Info:
+    - Full name, username (unique, used in profile URL: /u/username)
+    - Avatar upload
+    - Bio (280 chars)
+    - Location (city, country)
+    - Timezone
+
+  Step 2 — Skills & Expertise:
+    - Skills multi-select with proficiency level (Beginner / Intermediate / Expert)
+      e.g., Python-Expert, Figma-Intermediate, React-Expert, ML-Intermediate
+    - Role(s): Developer, Designer, Data Scientist, Product Manager, Domain Expert,
+      Marketing, Other
+    - Years of experience
+    - Primary domain interest (Healthcare, Fintech, EdTech, etc.)
+
+  Step 3 — Links:
+    - GitHub profile URL
+    - LinkedIn URL
+    - Portfolio/personal website
+    - Twitter/X handle
+    - Discord username
+
+  Step 4 — Hackathon Preferences:
+    - Preferred mode (Online / In-person / Both)
+    - Preferred team size
+    - Availability: weekends only, full-time, flexible
+    - Preferred themes (multi-select)
+    - Open to team invites: Yes / No / Only from connections
+
+5.2 Public Profile Page (/u/username)
+  - Avatar, name, bio, location, badges
+  - Skills displayed as visual tags with proficiency
+  - External links
+  - Hackathon stats summary:
+      - Total hackathons participated
+      - Wins / Top 3 finishes / Honorable mentions
+      - Total prize money won
+      - Win rate percentage
+  - Participation history (public entries only):
+      - List of hackathons with result and project name
+  - Portfolio projects pinned from past hackathons
+  - Team reviews received (from past teammates)
+  - Availability status badge
+
+5.3 Privacy Controls
+  Users can individually toggle visibility of:
+  - Each field in their profile (public / connections only / private)
+  - Participation history entries
+  - Stats summary
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 6: TEAM FORMATION SYSTEM
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+6.1 Team Listings (per hackathon)
+  On every hackathon's detail page, there is a Teams tab showing:
+  - Open teams looking for members
+  - Individuals looking to join a team (LFT — Looking for Team)
+
+  Creating a Team Listing:
+  - Team name
+  - Short pitch (what you're building / idea direction)
+  - Roles needed (multi-select: Developer, Designer, ML Engineer, etc.)
+  - Skills specifically needed (e.g., "Flutter developer", "Figma expert")
+  - Current team size / max team size
+  - Communication platform preference (Discord, Slack, WhatsApp, etc.)
+  - Link or contact method for interested people
+  - Whether they already have an idea or are open to brainstorming together
+
+  LFT Profile (individual looking for a team):
+  - Auto-populated from user profile but editable for this specific hackathon
+  - What role they're looking to fill
+  - Availability during the hackathon window
+  - Brief note about what they bring to the team
+
+6.2 Team Discovery & Matching
+  - Browse open team listings for any hackathon
+  - Filter teams by: roles needed, skills needed, idea domain, current size
+  - Smart match score: the platform computes a match % between a user's profile
+    skills and what a team is looking for, and surfaces the best fits at the top
+  - "Request to Join" button sends a notification to the team creator
+  - Team creator can Accept / Decline with an optional message
+
+6.3 Team Management (for confirmed teams)
+  Once a team is formed on the platform:
+  - Private team workspace accessible only to members
+  - Team chat (simple threaded messages, not a full Slack replacement)
+  - Shared task board (kanban: To Do / In Progress / Done) for the hackathon
+  - Shared idea bank (see Idea Vault in Section 8)
+  - File links (Google Docs, Figma, GitHub repo, etc.) pinned to the team workspace
+  - Member roles assigned within the team
+  - Team submissions tracker (link to submitted project, submission status)
+
+6.4 Post-Hackathon Team Reviews
+  After a hackathon ends (and the team entry is marked as completed):
+  - Each team member is prompted to leave a short private review for each teammate
+  - Review criteria: Communication, Technical Contribution, Creativity, Reliability
+  - These reviews are anonymized and averaged into a "Teammate Score" shown on
+    the recipient's profile
+  - Users can opt out of receiving reviews (but cannot selectively hide bad ones)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 7: PARTICIPATION TRACKER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+This is the personal dashboard for managing every hackathon a user participates in.
+Think of it as a personal CRM for hackathons.
+
+7.1 Participation Entry
+  A user can create a participation entry for any hackathon. Each entry contains:
+
+  Basic Info:
+    - Linked hackathon (search from the aggregated database, or manual entry)
+    - Participation status: Interested / Registered / Actively Participating /
+      Submitted / Withdrawn / Completed
+    - Team: Solo or linked to a team (from the team system)
+    - Registration date
+    - Registration confirmation (file upload for email confirmation / screenshot)
+
+  Idea & Project:
+    - Project name
+    - Project description (rich text)
+    - Tech stack used (multi-select tags)
+    - Track/theme submitted under
+    - Project repository URL (GitHub, GitLab, etc.)
+    - Devpost / submission page URL
+    - Demo video URL
+    - Screenshots (upload up to 10 images)
+    - Live demo URL (if any)
+    - Slide deck URL (Google Slides, Canva, etc.)
+
+  Timeline & Schedule (per hackathon):
+    - Registration deadline (auto-filled from hackathon data)
+    - Hackathon start time
+    - Submission deadline
+    - Custom milestones (e.g., "Have MVP ready by Saturday 2pm")
+    - Each milestone has a status: Pending / Done / Missed
+
+  Result:
+    - Result status: Won / Runner-up / Top 5 / Honorable Mention / Didn't Place /
+      Withdrew / Disqualified / Pending
+    - Prize won (amount and description)
+    - Position/rank
+    - Judge feedback received (text, if shared by organizer)
+    - Public result URL (link to winners announcement)
+
+7.2 Status Workflow
+  Participation entries move through a visual status pipeline:
+  INTERESTED → REGISTERED → BUILDING → SUBMITTED → RESULT PENDING → COMPLETED
+  Each transition can be done manually or triggered automatically (e.g., if
+  submission deadline passes, it prompts the user to mark submission status).
+
+7.3 Dashboard Views
+  The tracker dashboard (at /dashboard/tracker) offers:
+
+  Kanban View:
+    - Columns: Upcoming / In Progress / Submitted / Completed / Wishlist
+    - Cards show hackathon name, date, team, idea name, status badge
+    - Drag-and-drop to move between columns
+
+  List View:
+    - Sortable table with all participations
+    - Columns: Hackathon, Dates, Team, Project, Status, Result, Prize
+
+  Calendar View:
+    - Monthly calendar showing hackathon start/end/deadline dates
+    - Color-coded: green=active, blue=upcoming, gray=past
+
+  Timeline View:
+    - Horizontal Gantt-style chart showing all hackathons plotted over time
+
+7.4 Stats & Analytics (personal)
+  A stats page at /dashboard/stats:
+  - Total hackathons: participated, won, runner-up, no placement
+  - Win rate (%)
+  - Total prize money won (with currency normalization)
+  - Average team size
+  - Preferred mode (online vs in-person based on history)
+  - Most common themes participated in (donut chart)
+  - Skills most used (bar chart)
+  - Monthly participation heatmap (GitHub-style calendar)
+  - Longest streak (consecutive months with at least one hackathon)
+  - Best performing theme (highest win rate by theme)
+  - Performance over time (line chart: wins/participations per quarter)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 8: IDEA VAULT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+A personal (and optionally team-shared) idea storage system.
+
+8.1 Idea Entry
+  Each idea card contains:
+  - Title
+  - Problem statement (what problem does this solve?)
+  - Proposed solution (how does your idea solve it?)
+  - Target audience
+  - Tech stack considerations (what you'd build it with)
+  - Themes it fits (tags: AI, healthcare, etc.)
+  - Inspiration sources (URLs, notes)
+  - Feasibility score (your own rating 1-5)
+  - Novelty score (your own rating 1-5)
+  - Status: Raw Idea / Refining / Ready to Use / Used / Archived
+  - Rich text notes area (full Markdown editor with image paste support)
+  - Attachments (images, diagrams, wireframes)
+  - Linked hackathon(s) this idea was used in (or considered for)
+  - Visibility: Private / Team / Public (public ideas appear in community idea board)
+  - Created date / Last modified date
+
+8.2 Idea Management
+  - Folder/collection system (group ideas by theme, event, or personal tags)
+  - Tag system for cross-collection filtering
+  - Sort by: Newest, Feasibility score, Novelty score, Last modified
+  - Archive old ideas (hidden from main view but searchable)
+  - Duplicate an idea (to iterate on a variant)
+  - Version history (see how an idea evolved over time)
+  - "Idea Maturity" progress bar (auto-calculated from completeness of fields)
+
+8.3 Community Idea Board
+  Public ideas become part of a browsable community board:
+  - Other users can bookmark community ideas
+  - Upvote / react system (Innovative, Practical, Wild, etc.)
+  - Comment thread under each idea
+  - The idea author can see engagement but not who specifically viewed
+  - Ideas can be used as inspiration only — full text is shown, respecting that
+    execution is different from inspiration
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 9: POST-MORTEM / RETROSPECTIVE SYSTEM
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+This is where users reflect on each hackathon after it ends.
+
+9.1 Retrospective Form (unlocked when participation status is "Completed")
+  The retrospective is a structured reflection document for each hackathon entry.
+  It is organized into sections:
+
+  SECTION A — What Went Well
+    - Free-text rich editor
+    - Structured prompts to guide the user:
+        "What decisions paid off?"
+        "Which team dynamics worked?"
+        "What technical choices saved time?"
+
+  SECTION B — What Went Wrong / Could Be Improved
+    - Free-text rich editor
+    - Guided prompts:
+        "What caused the most delays?"
+        "Where did the team misalign?"
+        "What would you do differently with the same idea?"
+        "What technical debt did you create?"
+
+  SECTION C — Root Cause Analysis (for losses) OR Win Breakdown (for wins)
+
+    If result was a win or top placement:
+      - What was the key differentiator that made the judges pick this project?
+      - Was it the idea, execution, presentation, or team?
+      - What was the feedback from judges?
+      - What moment during the hackathon was the turning point?
+      - Was the win reproducible? Why or why not?
+
+    If result was not a placement:
+      - What do you think caused the loss?
+      - Reason categories (multi-select):
+            Weak idea/problem fit
+            Poor execution/technical bugs
+            Weak presentation/demo
+            Ran out of time
+            Team coordination issues
+            Wrong track/theme targeting
+            Underestimated competition
+            Judge criteria mismatch
+            Technical stack issues
+            Overscoped the project
+            Other (specify)
+      - What's the one thing, if changed, would most likely have improved the result?
+      - Would you revive this idea for a future hackathon?
+
+  SECTION D — Team Reflection
+    - How was team communication? (Rating 1-5 + notes)
+    - Was the team composition right for this hackathon? (Rating 1-5 + notes)
+    - What would you change about team roles?
+
+  SECTION E — Personal Skill Assessment
+    - Which skills did you use that performed well?
+    - Which skill gaps were exposed?
+    - What skill do you want to develop before the next hackathon?
+    - Time management rating (1-5)
+    - Stress management rating (1-5)
+
+  SECTION F — Lessons Learned
+    - "Top 3 lessons I'm taking from this hackathon" (3 text fields)
+    - These lessons are aggregated into a personal "Lessons Library" over time
+
+  SECTION G — Next Actions
+    - Will you continue building this project? (Yes / No / Maybe)
+    - If yes, what's the first step?
+    - Do you plan to submit to future hackathons with this idea?
+    - Open tasks before the next hackathon
+
+9.2 Retrospective Features
+  - Each retrospective is auto-saved as you type
+  - Retrospectives can be marked as private or visible to team members only
+  - Users can review all past retrospectives in a timeline at /dashboard/retrospectives
+  - "Lessons Library" aggregates all "lessons learned" bullets across all hackathons
+    into a searchable, taggable personal knowledge base
+  - Retrospective templates: users can create their own templates for the
+    retrospective structure and reuse them
+  - AI-Assisted Summary: optional button that sends the retrospective to an AI
+    (using Claude API) to generate a concise 3-paragraph executive summary and
+    actionable recommendations
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 10: NOTIFICATIONS & ALERTS SYSTEM
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+10.1 Alert Types
+  - New hackathon matching saved filter presets
+  - Registration deadline approaching (7 days, 3 days, 1 day before)
+  - Hackathon starting soon (24 hours before start)
+  - Submission deadline approaching (24 hours, 6 hours, 1 hour before)
+  - Team invite received
+  - Team join request received / accepted / declined
+  - Teammate left a review
+  - A hackathon you bookmarked updated its prize pool or dates
+  - Results announced for a hackathon you participated in
+  - New comment on your idea or project
+  - Someone sent you a connection request or message
+
+10.2 Notification Preferences
+  Per-type configuration:
+  - Email (immediate / daily digest / weekly digest / off)
+  - Browser push (on / off)
+  - In-app (always on for relevant alerts)
+  - Telegram bot (optional — connect Telegram account for Telegram notifications)
+
+10.3 Digest Emails
+  - "Weekly Hackathon Digest" — new hackathons matching your interests, top prizes
+    closing soon, trending in community
+  - "Monthly Performance Summary" — your stats for the month, retrospective prompts
+    if you have incomplete ones
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 11: COMMUNITY & SOCIAL FEATURES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+11.1 Connections / Network
+  - Follow system (asymmetric, like Twitter) — follow other hackers to see their
+    public activity
+  - Connection system (symmetric, like LinkedIn) — mutual connections unlock DMs
+    and see more profile data
+  - "People You May Know" recommendations based on shared hackathons and skills
+
+11.2 Direct Messaging
+  - Simple DM system between mutual connections
+  - Message requests from non-connections (goes into a separate inbox)
+  - Message templates for common actions: "Hey, I'd love to join your team for X"
+
+11.3 Community Feed
+  - Activity feed showing:
+      - Hackathons connections joined or bookmarked
+      - Project submissions shared publicly
+      - New community ideas posted
+      - Milestone achievements unlocked
+      - Retrospective summaries shared publicly
+  - Ability to react to feed items (👏 Nice work, 🔥 Impressive, 💡 Inspiring)
+  - Comment on feed items
+
+11.4 Leaderboards
+  - Global leaderboard (top participants by wins, prize money, participation count)
+  - Monthly leaderboard (resets each month)
+  - Regional leaderboard (filter by country or city)
+  - Skill-specific leaderboard (e.g., top ML hackers, top designers)
+  - Theme-specific leaderboard (e.g., top Sustainability hackers)
+  - Leaderboards are opt-in (users can choose to participate or stay private)
+
+11.5 Hackathon Discussion Boards
+  - Each hackathon detail page has a community discussion tab
+  - Users can post:
+      - Tips & resources for this hackathon's themes
+      - Questions about the rules or tracks
+      - Team-finding shoutouts
+      - Post-result congratulations
+  - Moderated for spam and toxicity
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 12: GAMIFICATION & ACHIEVEMENT SYSTEM
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+12.1 XP & Levels
+  Users earn XP for:
+  - Completing profile (50 XP)
+  - First hackathon participation (100 XP)
+  - Submitting a project (50 XP per hackathon)
+  - Winning a hackathon (500 XP)
+  - Top 3 finish (200 XP)
+  - Completing a retrospective (75 XP)
+  - Creating a team listing (25 XP)
+  - Helping someone join a team (50 XP)
+  - Publishing a public idea (30 XP)
+  - Receiving 10 upvotes on a public idea (50 XP)
+
+  XP unlocks levels: Rookie → Challenger → Builder → Hacker → Elite → Legend
+
+12.2 Badges
+  Milestone badges:
+  - "First Blood" — First hackathon participated
+  - "Streak Hacker" — 3 consecutive months with a hackathon
+  - "Podium Finisher" — First top-3 finish
+  - "Champion" — First win
+  - "Serial Winner" — 5 wins
+  - "Prize Hunter" — $10K+ in total prize money
+  - "Ideas Machine" — 20 ideas in the idea vault
+  - "Team Player" — Formed or joined 10 teams on the platform
+  - "Reflector" — Completed retrospectives for 5 hackathons
+  - "Open Source" — Linked public GitHub repo on 5 projects
+  - "Remote Warrior" — 10 online hackathons
+  - "On The Ground" — 5 in-person hackathons
+  - "Domain Expert" — 5 hackathons in the same theme
+  - "Renaissance Hacker" — Participated in 5 different themes
+  - "Global Citizen" — Participated in hackathons from 5 different countries
+
+  All badges are displayed on the public profile.
+
+12.3 Hackathon "Battle Card" (shareable profile card)
+  - A visual summary card users can share on social media
+  - Shows: avatar, username, total hackathons, wins, total prize, favorite theme,
+    top skills, badge highlights
+  - Exportable as PNG (auto-generated)
+  - Available at /u/username/card
+  - OG image is auto-generated so link previews on Twitter/LinkedIn look great
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 13: RESOURCE LIBRARY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+A curated, community-contributed library of resources to help hackers level up.
+
+13.1 Resource Types
+  - Tutorials (links to external articles/videos)
+  - Templates (pitch deck templates, README templates, project submission templates)
+  - Tools (links to tools commonly used in hackathons: Figma, Vercel, Supabase, etc.)
+  - APIs (curated list of free APIs useful in hackathons, with descriptions and limits)
+  - Datasets (links to public datasets for data science hackathons)
+  - Guides (platform-authored guides: "How to win at Devpost", "Best pitch tips", etc.)
+
+13.2 Resource Organization
+  - Tagged by theme (AI, Healthcare, etc.) and type
+  - Upvoted by community — most useful float to top
+  - User submissions go through a lightweight moderation queue
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 14: ORGANIZER PORTAL (B2B SIDE)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Hackathon organizers can claim and manage their listings on the platform.
+
+14.1 Organizer Accounts
+  - Separate organizer account type (company/org email required)
+  - Organizer profile page at /organizers/[slug]
+  - Verification badge for official organizers
+
+14.2 Listing Management
+  - Claim auto-scraped listings (verify ownership via email domain or DNS record)
+  - Edit listing details (corrections, additions, updates)
+  - Add sponsor logos
+  - Boost/feature listing (paid promotion)
+  - Post official announcements on the discussion board
+  - View analytics: views, bookmarks, team registrations from this platform
+
+14.3 Participant Outreach
+  - Optional: post a "Participant Needed" or "Mentor Needed" call-out to the platform
+  - Optional: embed the Find-a-Thon "Find a Team" widget on their own website
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 15: ADMIN PANEL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Internal admin dashboard for platform operators:
+  - Scraper management: view scraper status, last run time, error logs, force re-run
+  - Content moderation: review flagged posts, ideas, and user reports
+  - User management: view, suspend, or delete accounts
+  - Hackathon moderation: approve user-submitted hackathons, feature listings
+  - Analytics dashboard: DAU/MAU, new signups, scraper health, top browsed hackathons
+  - Organizer verification queue
+  - Resource library moderation
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 16: DATABASE SCHEMA OVERVIEW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Core tables (PostgreSQL):
+
+  users                  — accounts, profile data, preferences
+  user_skills            — user ↔ skill ↔ proficiency (junction table)
+  user_connections       — follow/connect relationships
+  user_messages          — DMs between connected users
+
+  hackathons             — aggregated hackathon listings
+  hackathon_prizes       — prize breakdown per hackathon (one-to-many)
+  hackathon_tracks       — tracks per hackathon
+  hackathon_bookmarks    — user ↔ hackathon bookmarks
+  hackathon_discussions  — comments on hackathon detail pages
+
+  participations         — user's participation entries per hackathon
+  participation_milestones — custom milestones per participation entry
+  retrospectives         — retrospective documents per participation
+  lessons_learned        — extracted lesson bullets across retrospectives
+
+  teams                  — team listings per hackathon
+  team_members           — user ↔ team membership (with role)
+  team_join_requests     — pending join requests
+  team_reviews           — anonymized peer reviews
+
+  ideas                  — idea vault entries
+  idea_attachments       — files/images attached to ideas
+  idea_votes             — community upvotes on public ideas
+  idea_comments          — comments on community ideas
+
+  notifications          — all platform notifications
+  notification_settings  — per-user, per-type notification preferences
+
+  resources              — resource library entries
+  resource_votes         — upvotes on resources
+
+  badges                 — badge definitions
+  user_badges            — awarded badges per user
+
+  organizers             — organizer accounts
+  organizer_hackathons   — organizer ↔ claimed hackathons
+
+  scraper_logs           — scraper run history, errors, result counts
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 17: API DESIGN OVERVIEW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+RESTful API (all endpoints prefixed with /api/v1/):
+
+  Hackathons:
+    GET    /hackathons              — list with filters, search, pagination
+    GET    /hackathons/:slug        — detail page data
+    POST   /hackathons/suggest      — user-submitted hackathon
+    POST   /hackathons/:id/bookmark — toggle bookmark
+
+  Auth:
+    POST   /auth/register
+    POST   /auth/login
+    POST   /auth/logout
+    GET    /auth/me
+    POST   /auth/refresh
+
+  Users:
+    GET    /users/:username         — public profile
+    PATCH  /users/me                — update own profile
+    GET    /users/me/stats          — personal stats
+    POST   /users/:id/follow
+    POST   /users/:id/connect
+
+  Participations:
+    GET    /participations          — user's participation list
+    POST   /participations          — create new entry
+    GET    /participations/:id      — detail
+    PATCH  /participations/:id      — update entry
+    DELETE /participations/:id
+
+  Retrospectives:
+    GET    /participations/:id/retro
+    POST   /participations/:id/retro
+    PATCH  /participations/:id/retro
+
+  Teams:
+    GET    /hackathons/:id/teams    — list open teams for a hackathon
+    POST   /hackathons/:id/teams    — create team listing
+    POST   /teams/:id/join-request  — request to join
+    PATCH  /teams/:id/join-request/:reqId — accept/decline
+
+  Ideas:
+    GET    /ideas                   — user's ideas
+    POST   /ideas
+    PATCH  /ideas/:id
+    DELETE /ideas/:id
+    GET    /community/ideas         — public community board
+    POST   /ideas/:id/vote
+
+  Notifications:
+    GET    /notifications
+    PATCH  /notifications/:id/read
+    GET    /notifications/settings
+    PATCH  /notifications/settings
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 18: PAGE MAP / URL STRUCTURE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Public Pages:
+  /                          Landing page
+  /hackathons                Discovery & browse listing
+  /hackathons/[slug]         Hackathon detail page
+  /organizers/[slug]         Organizer profile
+  /community/ideas           Public idea board
+  /resources                 Resource library
+  /leaderboard               Global leaderboard
+  /u/[username]              Public user profile
+  /u/[username]/card         Shareable battle card
+
+Auth Pages:
+  /login
+  /register
+  /onboarding                Post-registration profile wizard
+  /forgot-password
+  /reset-password
+
+Dashboard (authenticated):
+  /dashboard                 Overview / home
+  /dashboard/tracker         Participation tracker (kanban/list/calendar)
+  /dashboard/tracker/new     Add participation entry
+  /dashboard/tracker/[id]    Entry detail & edit
+  /dashboard/stats           Personal analytics
+  /dashboard/ideas           Idea vault
+  /dashboard/ideas/new       Create new idea
+  /dashboard/ideas/[id]      Idea detail
+  /dashboard/retrospectives  All retrospectives list
+  /dashboard/teams           Teams I've joined or created
+  /dashboard/notifications   Notification center
+  /dashboard/settings        Account settings, privacy, notification prefs
+
+Admin (admin role only):
+  /admin                     Admin overview
+  /admin/scrapers            Scraper management
+  /admin/hackathons          Hackathon moderation
+  /admin/users               User management
+  /admin/resources           Resource moderation
+  /admin/organizers          Organizer verification
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 19: DESIGN GUIDELINES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Visual Identity:
+  - Dark-first design (primary dark background, light text) to suit the late-night
+    hacker aesthetic
+  - Accent color: electric cyan or neon green — energetic and technical
+  - Secondary accents: purple for community, amber/yellow for achievements
+  - Clean, monospace-influenced typography for numbers and stats
+  - Generous use of badges, tags, and status indicators
+  - Subtle neon glow effects on key CTAs and active states
+  - Grid-based layout with clear information hierarchy
+
+Key UX Principles:
+  - Speed: Discovery page must load < 1s (heavy use of SSR + ISR)
+  - Progressive disclosure: Don't overwhelm; show advanced features as user engages
+  - Mobile-first: All dashboard features must work on mobile
+  - Keyboard accessible: All interactive elements reachable by keyboard
+  - Optimistic UI: Bookmark, vote, and follow actions update instantly in UI
+    before server confirms
+  - Empty states: Every empty state has a clear CTA (e.g., "No participations yet —
+    find a hackathon to join!")
+  - Skeletons and loading states for all async data
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 20: MVP SCOPE vs FULL SCOPE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+To avoid scope creep, here's what to build first (MVP) and what to build later.
+
+MVP (Launch-ready, Phase 1):
+  ✅ Scraping engine (start with 3-4 sources: Devpost, Devfolio, Unstop, HackerEarth)
+  ✅ Hackathon listing with search and basic filters
+  ✅ Hackathon detail page
+  ✅ User auth (email + Google OAuth)
+  ✅ Basic user profile (skills, links)
+  ✅ Participation tracker (list view + basic entry fields)
+  ✅ Idea vault (private only, no community board)
+  ✅ Retrospective form (basic version)
+  ✅ Bookmarks
+  ✅ Email notifications (deadline alerts)
+
+Phase 2 (Post-launch, growing user base):
+  🔲 Team formation system
+  🔲 More scraper sources (MLH, DoraHacks, LabLabAI, etc.)
+  🔲 Advanced filters and saved filter presets
+  🔲 Personal stats dashboard with charts
+  🔲 Calendar and timeline views
+  🔲 Community idea board
+  🔲 Discussion boards on hackathon pages
+  🔲 Browser push notifications
+  🔲 Gamification: XP, levels, badges
+
+Phase 3 (Scale):
+  🔲 Follow/connection system
+  🔲 Community feed
+  🔲 Leaderboards
+  🔲 Organizer portal
+  🔲 Telegram bot
+  🔲 AI retrospective summary (Claude API integration)
+  🔲 Shareable battle card
+  🔲 Resource library
+  🔲 Peer reviews / teammate scoring
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 21: MONETIZATION OPTIONS (FUTURE)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  - Featured listings: Organizers pay to boost their hackathon to top of search
+  - Find-a-Thon Pro subscription:
+      - Unlimited idea vault (free tier capped at 20 ideas)
+      - Advanced analytics and stats export (CSV)
+      - AI retrospective summaries (free tier: 1/month, Pro: unlimited)
+      - Custom retrospective templates
+      - Priority team matching
+  - Organizer Pro:
+      - Verified organizer badge
+      - Analytics on who bookmarked / registered interest from the platform
+      - Newsletter blast to interested users
+  - Sponsored resource library placements (tools/APIs paying to be featured)
+  - API access for third-party integrations (paid tier)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 22: KEY RISKS & MITIGATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Risk: Scraping sites block or change HTML structure
+  Mitigation: Use official APIs where available (Devpost has an API); build scrapers
+  with resilient selectors and add monitoring that alerts when scraper yields drop
+  below threshold; have user-submit fallback.
+
+  Risk: Low initial data (chicken-and-egg: users come for community, community needs users)
+  Mitigation: Launch with purely the discovery + tracker features — those work
+  without other users. Community features are Phase 2.
+
+  Risk: Legal concerns around scraping
+  Mitigation: Only store metadata (title, dates, prizes, links) — not full
+  copyrighted content. Always link back to original source. Respect robots.txt.
+  Honor takedown requests. Add ToS that clarifies data provenance.
+
+  Risk: Scraped data goes stale quickly
+  Mitigation: Run frequent scrapes, display "last verified" timestamps on listings,
+  show a "report outdated info" button on each listing.
+
+  Risk: Building too much at once
+  Mitigation: Stick to Phase 1 MVP strictly. Ship fast, get users, iterate based
+  on real usage patterns.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+END OF SPECIFICATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Document: Find-a-Thon Product Specification v1.0
+Purpose:  Developer / design prompt for building the platform end-to-end
+Length:   ~22 sections, full-stack scope
+================================================================================

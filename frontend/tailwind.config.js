@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: 'class',
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -7,7 +8,14 @@ module.exports = {
   ],
   theme: {
     extend: {
-      colors: {},
+      colors: {
+        background: 'hsl(var(--background) / <alpha-value>)',
+        foreground: 'hsl(var(--foreground) / <alpha-value>)',
+        card: 'hsl(var(--card) / <alpha-value>)',
+        muted: 'hsl(var(--muted) / <alpha-value>)',
+        accent: 'hsl(var(--accent) / <alpha-value>)',
+        border: 'hsl(var(--border) / <alpha-value>)',
+      },
       fontFamily: {
         sans: ["var(--font-inter)", "ui-sans-serif", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "sans-serif"],
       },

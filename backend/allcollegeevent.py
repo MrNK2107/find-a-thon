@@ -1,4 +1,5 @@
 import re
+import asyncio
 import dateparser
 from playwright.sync_api import Page, BrowserContext
 from base_scraper import GenericScraper
@@ -141,3 +142,15 @@ class AllCollegeEventScraper(GenericScraper):
                 enriched.append(item)
 
         return enriched
+
+
+async def test_scraper():
+    scraper = AllCollegeEventScraper()
+    items = await asyncio.to_thread(scraper.run)
+    print(f"[AllCollegeEvent] scraped {len(items)} items")
+    for idx, item in enumerate(items[:3], start=1):
+        print(f"{idx}. {item.title} | {item.date} | {item.link}")
+
+
+if __name__ == "__main__":
+    asyncio.run(test_scraper())

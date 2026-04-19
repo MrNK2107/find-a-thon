@@ -7,6 +7,12 @@ ALTER TABLE hackathons ADD COLUMN IF NOT EXISTS themes text[];
 ALTER TABLE hackathons ADD COLUMN IF NOT EXISTS prize text;
 ALTER TABLE hackathons ADD COLUMN IF NOT EXISTS organizer text;
 ALTER TABLE hackathons ADD COLUMN IF NOT EXISTS location text;
+ALTER TABLE hackathons ADD COLUMN IF NOT EXISTS source_quality text DEFAULT 'curated';
+ALTER TABLE hackathons ADD COLUMN IF NOT EXISTS category text DEFAULT 'practice';
+ALTER TABLE hackathons ADD COLUMN IF NOT EXISTS location_group text DEFAULT 'Other cities';
+ALTER TABLE hackathons ADD COLUMN IF NOT EXISTS is_free boolean;
+ALTER TABLE hackathons ADD COLUMN IF NOT EXISTS registration_fee numeric;
+ALTER TABLE hackathons ADD COLUMN IF NOT EXISTS tags text[];
 
 -- 2) Profiles table
 CREATE TABLE IF NOT EXISTS profiles (
